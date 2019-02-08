@@ -24,6 +24,27 @@ end
 module Term : sig
   type t
 
+  (* TODO
+  val mk_unin : Ctx.t -> string -> arity:int -> t
+  val mk_cstor : Ctx.t -> string -> arity:int -> t
+  val mk_select: Ctx.t -> cstor:t -> int -> t
+  val mk_bool : Ctx.t -> bool -> t
+  val mk_eq : Ctx.t -> t -> t -> t
+  val apply : Ctx.t -> t -> t list -> t
+
+  type view =
+    | Bool of bool
+    | App of t * t list
+    | Cst_unin of string
+    | Cst_cstor of string
+    | Select of { cstor: t; idx: int }
+
+  val view : Ctx.t -> t -> view
+
+  (** Printing, based on {!view} *)
+  val pp : Ctx.t -> Format.formatter -> t -> unit
+  *)
+
   (* TODO:
      - constructors
      - selectors
@@ -40,7 +61,16 @@ module Solver : sig
 
   val create : Ctx.t -> t
 
+  val add_clause_l : t -> Lit.t list -> unit
+  val add_clause_a : t -> Lit.t array -> unit
+
   val solve : ?assumptions:Lit.t list -> t -> res
+
+  (* TODO:
+    - unsat core
+    - model
+    - add-term-lit (bidir mapping)
+  *)
 end
 
 (* TODO: insert [blit -> term] *)

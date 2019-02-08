@@ -15,59 +15,25 @@ extern crate batsmt_cc;
 #[link(name="batsmt-cc")]
 
 use {
-    std::{ptr, rc::Rc, std::mem, std::ops},
+    std::{ptr, mem, ops},
     ocaml::{ToValue,Value,value}
 };
 
 mod ctx;
 mod solver;
 
-pub struct BCtx(Rc<ctx::Ctx>);
+pub type Lit = solver::Lit;
+pub type Ctx = ctx::Ctx;
+pub type Solver = solver::Solver;
 
-pub struct BSolver {
-    ctx: Rc<ctx::Ctx>,
-    s: solver::Solver,
-    cur_clause: Vec<solver::Lit>,
-    assumptions: Vec<solver::Lit>,
+#[inline]
+fn lit_of_int(lit: i32) -> Lit {
+    Lit::unsafe_from_int(lit)
 }
 
-impl BCtx {
-    fn new() -> Self {
-        BSolver {
-            s: InnerSolver::default(), vars: Vec::new(),
-            cur_clause: vec![], assumptions: vec![],
-        }
-    }
-}
-
-impl BSolver {
-    fn new(ctx: &BCtx) -> Self {
-        BSolver {
-            ctx: ctx.0.clone(),
-            s: solver::Solver::new(&ctx.0),
-            s: InnerSolver::default(), vars: Vec::new(),
-            cur_clause: vec![], assumptions: vec![],
-        }
-    }
-}
-
-impl Solver {
-
-    #[inline]
-    fn get_lit(&mut self, lit: i32) -> Lit {
-        assert!(lit != 0);
-        let v = self.get_var(lit.abs() as usize);
-        Lit::new(v, lit>0)
-    }
-}
-
-impl ops::Deref for Solver {
-    type Target = InnerSolver;
-    fn deref(&self) -> &Self::Target { &self.s }
-}
-
-impl ops::DerefMut for Solver {
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.s }
+#[inline]
+fn int_of_lit(lit: Lit) -> i32 {
+    Lit::to_int(&lit)
 }
 
 // NOTE on storage:

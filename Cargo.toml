@@ -3,6 +3,7 @@
 name = "batsmt-stubs"
 version = "0.1.0"
 authors = ["Simon Cruanes"]
+edition = "2018"
 
 [lib]
 crate-type = ["staticlib", "cdylib"]
@@ -13,11 +14,12 @@ ocaml = "0.5"
 bit-set = "0.5.0"
 fxhash = "0.2"
 #batsmt = "*"
-batsmt-core = { git="https://github.com/AestheticIntegration/batsmt", rev="b05fbf2c92f3c3ec851d70853e0330bf29930fa9" }
-batsmt-cc = { git="https://github.com/AestheticIntegration/batsmt", rev="b05fbf2c92f3c3ec851d70853e0330bf29930fa9" }
-batsmt-hast = { git="https://github.com/AestheticIntegration/batsmt", rev="b05fbf2c92f3c3ec851d70853e0330bf29930fa9" }
-batsmt-theory = { git="https://github.com/AestheticIntegration/batsmt", rev="b05fbf2c92f3c3ec851d70853e0330bf29930fa9" }
-batsmt-solver = { git="https://github.com/AestheticIntegration/batsmt", rev="b05fbf2c92f3c3ec851d70853e0330bf29930fa9" }
+batsmt-core = { git="https://github.com/AestheticIntegration/batsmt", rev="755159362cb93241b907dba25aa86c66a8213160" }
+batsmt-cc = { git="https://github.com/AestheticIntegration/batsmt", rev="755159362cb93241b907dba25aa86c66a8213160" }
+batsmt-hast = { git="https://github.com/AestheticIntegration/batsmt", rev="755159362cb93241b907dba25aa86c66a8213160" }
+batsmt-theory = { git="https://github.com/AestheticIntegration/batsmt", rev="755159362cb93241b907dba25aa86c66a8213160" }
+batsmt-solver = { git="https://github.com/AestheticIntegration/batsmt", rev="755159362cb93241b907dba25aa86c66a8213160" }
+batsmt-pretty = { git="https://github.com/AestheticIntegration/batsmt", rev="755159362cb93241b907dba25aa86c66a8213160" }
 
 [workspace]
 

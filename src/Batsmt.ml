@@ -44,12 +44,22 @@ module Solver = struct
   external create_ : Ctx.t -> t = "ml_batsmt_solver_new"
   external delete_ : t -> unit = "ml_batsmt_solver_delete"
   external push_assumption_ : t -> Lit.t -> unit = "ml_batsmt_solver_add_assumption" [@@noalloc]
+  external push_clause_lit_ : t -> Lit.t -> unit = "ml_batsmt_solver_add_clause_lit" [@@noalloc]
+  external add_clause_ : t -> unit = "ml_batsmt_solver_add_clause" [@@noalloc]
   external solve_ : t -> bool = "ml_batsmt_solver_solve" [@@noalloc]
 
   let create (ctx:Ctx.t) : t =
     let s = create_ ctx in
     Gc.finalise delete_ s;
     s
+
+  let add_clause_l (s:t) (c: Lit.t list) : unit =
+    List.iter (push_clause_lit_ s) c;
+    add_clause_ s
+
+  let add_clause_a (s:t) (c: Lit.t array) : unit =
+    Array.iter (push_clause_lit_ s) c;
+    add_clause_ s
 
   let solve ?(assumptions=[]) (s:t) : res =
     List.iter (push_assumption_ s) assumptions;

@@ -1,5 +1,6 @@
 
 use {
+    std::{rc::Rc},
     fxhash::FxHashMap,
     bit_set::BitSet,
     batsmt_core::{ast, ast_u32::{self,AST}, AstView},
@@ -35,9 +36,9 @@ pub struct Ctx {
 
 #[derive(Default,Clone)]
 struct Flags {
-    injective: ast_u32::BitSet,
-    cstor: ast_u32::BitSet,
-    selector: ast_u32::BitSet,
+    injective: bit_set::BitSet,
+    cstor: bit_set::BitSet,
+    selector: bit_set::BitSet,
 }
 
 pub mod ctx {
@@ -52,7 +53,10 @@ pub mod ctx {
             let mut m = HManager::new();
             let b = Builtins::new(&mut m);
             let lmb = b.clone().into();
-            Ctx {m, b, lmb}
+            Ctx {
+                m, b, lmb,
+                flags: Default::default(), syms: FxHashMap::default(),
+            }
         }
 
         /// Copy of builtins
@@ -62,12 +66,12 @@ pub mod ctx {
 
         pub fn lmb(&self) -> LitMapBuiltins { self.lmb.clone() }
 
-        pub fn is_injective(&self, t: AST) -> bool { self.flags.injective.contains(t) }
-        pub fn is_cstor(&self, t: AST) -> bool { self.flags.cstor.contains(t) }
-        pub fn is_selector(&self, t: AST) -> bool { self.flags.selector.contains(t) }
+        pub fn is_injective(&self, t: &AST) -> bool { self.flags.injective.contains(t.idx() as usize) }
+        pub fn is_cstor(&self, t: &AST) -> bool { self.flags.cstor.contains(t.idx() as usize) }
+        pub fn is_selector(&self, t: &AST) -> bool { self.flags.selector.contains(t.idx() as usize) }
 
-        pub fn set_injective(&mut self, t: AST) { self.flags.injective.insert(t) }
-        pub fn set_cstor(&mut self, t: AST) { self.flags.cstor.insert(t) }
+        pub fn set_injective(&mut self, t: &AST) { self.flags.injective.insert(t.idx() as usize); }
+        pub fn set_cstor(&mut self, t: &AST) { self.flags.cstor.insert(t.idx() as usize); }
     }
 
     impl theory::BoolLitCtx for Ctx {
@@ -139,15 +143,15 @@ pub mod ctx {
         }
     }
 
-    impl HasDijointness<AST> for Ctx {
+    impl HasDisjointness<AST> for Ctx {
         type F = AST;
 
         fn get_disjoint_label(&self, t: &AST) -> Option<Self::F> {
             match self.view(t) {
                 AstView::App{f, args: _} if self.is_cstor(f) => {
-                    Some(f)
+                    Some(*f)
                 },
-                AstView::Const(_) if self.is_cstor(t) => Some(t),
+                AstView::Const(_) if self.is_cstor(t) => Some(*t),
                 _ => None,
             }
         }
