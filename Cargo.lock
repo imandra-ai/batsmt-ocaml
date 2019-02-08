@@ -1,0 +1,160 @@
+[[package]]
+name = "batsmt-cc"
+version = "0.1.0"
+source = "git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9#b05fbf2c92f3c3ec851d70853e0330bf29930fa9"
+dependencies = [
+ "batsmt-core 0.1.0 (git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9)",
+ "batsmt-pretty 0.1.0 (git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9)",
+ "batsmt-theory 0.1.0 (git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9)",
+ "fxhash 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "smallvec 0.6.8 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "batsmt-core"
+version = "0.1.0"
+source = "git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9#b05fbf2c92f3c3ec851d70853e0330bf29930fa9"
+dependencies = [
+ "batsmt-pretty 0.1.0 (git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9)",
+ "bit-set 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "fxhash 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "smallvec 0.6.8 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "batsmt-hast"
+version = "0.1.0"
+source = "git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9#b05fbf2c92f3c3ec851d70853e0330bf29930fa9"
+dependencies = [
+ "batsmt-core 0.1.0 (git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9)",
+ "batsmt-pretty 0.1.0 (git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9)",
+ "bit-set 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "fxhash 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "batsmt-pretty"
+version = "0.1.0"
+source = "git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9#b05fbf2c92f3c3ec851d70853e0330bf29930fa9"
+dependencies = [
+ "pretty 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "batsmt-stubs"
+version = "0.1.0"
+dependencies = [
+ "batsmt-cc 0.1.0 (git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9)",
+ "batsmt-core 0.1.0 (git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9)",
+ "batsmt-hast 0.1.0 (git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9)",
+ "bit-set 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "fxhash 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ocaml 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "batsmt-theory"
+version = "0.1.0"
+source = "git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9#b05fbf2c92f3c3ec851d70853e0330bf29930fa9"
+dependencies = [
+ "batsmt-core 0.1.0 (git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9)",
+ "batsmt-pretty 0.1.0 (git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9)",
+]
+
+[[package]]
+name = "bit-set"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "bit-vec 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "bit-vec"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "byteorder"
+version = "1.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "cfg-if"
+version = "0.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "fxhash"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "byteorder 1.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "log"
+version = "0.4.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "cfg-if 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "ocaml"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "pretty"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "typed-arena 1.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "smallvec"
+version = "0.6.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "unreachable 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "typed-arena"
+version = "1.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "unreachable"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "void 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "void"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[metadata]
+"checksum batsmt-cc 0.1.0 (git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9)" = "<none>"
+"checksum batsmt-core 0.1.0 (git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9)" = "<none>"
+"checksum batsmt-hast 0.1.0 (git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9)" = "<none>"
+"checksum batsmt-pretty 0.1.0 (git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9)" = "<none>"
+"checksum batsmt-theory 0.1.0 (git+https://github.com/AestheticIntegration/batsmt?rev=b05fbf2c92f3c3ec851d70853e0330bf29930fa9)" = "<none>"
+"checksum bit-set 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "6f1efcc46c18245a69c38fcc5cc650f16d3a59d034f3106e9ed63748f695730a"
+"checksum bit-vec 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "4440d5cb623bb7390ae27fec0bb6c61111969860f8e3ae198bfa0663645e67cf"
+"checksum byteorder 1.3.1 (registry+https://github.com/rust-lang/crates.io-index)" = "a019b10a2a7cdeb292db131fc8113e57ea2a908f6e7894b0c3c671893b65dbeb"
+"checksum cfg-if 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)" = "082bb9b28e00d3c9d39cc03e64ce4cea0f1bb9b3fde493f0cbc008472d22bdf4"
+"checksum fxhash 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "c31b6d751ae2c7f11320402d34e41349dd1016f8d5d45e48c4312bc8625af50c"
+"checksum log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)" = "c84ec4b527950aa83a329754b01dbe3f58361d1c5efacd1f6d68c494d08a17c6"
+"checksum ocaml 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "0897c88775d5d0f6a5f6b24ea3ff480826e355e9faa504bb42783a414001db79"
+"checksum pretty 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)" = "f60c0d9f6fc88ecdd245d90c1920ff76a430ab34303fc778d33b1d0a4c3bf6d3"
+"checksum smallvec 0.6.8 (registry+https://github.com/rust-lang/crates.io-index)" = "88aea073965ab29f6edb5493faf96ad662fb18aa9eeb186a3b7057951605ed15"
+"checksum typed-arena 1.4.1 (registry+https://github.com/rust-lang/crates.io-index)" = "c6c06a92aef38bb4dc5b0df00d68496fc31307c5344c867bb61678c6e1671ec5"
+"checksum unreachable 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "382810877fe448991dfc7f0dd6e3ae5d58088fd0ea5e35189655f84e6814fa56"
+"checksum void 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
