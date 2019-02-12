@@ -17,8 +17,6 @@ module Lit : sig
   val equal : t -> t -> bool
   val compare : t -> t -> int
   val hash : t -> int
-
-  val make : Ctx.t -> t
 end
 
 module Term : sig
@@ -52,6 +50,10 @@ module Term : sig
    *)
 end
 
+module Lbool : sig
+  type t = True | False | Undefined
+end
+
 type res =
   | Sat
   | Unsat
@@ -64,7 +66,13 @@ module Solver : sig
   val add_clause_l : t -> Lit.t list -> unit
   val add_clause_a : t -> Lit.t array -> unit
 
-  val solve : ?assumptions:Lit.t list -> t -> res
+  val make_lit : t -> Lit.t
+
+  val solve : ?assumptions:Lit.t list -> t -> Ctx.t -> res
+
+  val unsat_core : t -> Lit.t array
+  val unsat_core_contains : t -> Lit.t -> bool
+  val value_lvl_0 : t -> Lit.t -> Lbool.t
 
   (* TODO:
     - unsat core

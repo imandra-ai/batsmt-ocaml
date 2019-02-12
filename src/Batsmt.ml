@@ -7,7 +7,6 @@ module Ctx = struct
 
   let create() : t =
     let c = create_ () in
-    Gc.finalise delete_ c;
     c
 end
 
@@ -23,8 +22,10 @@ module Lit = struct
   let equal : t -> t -> bool = Pervasives.(=)
   let compare : t -> t -> int = Pervasives.compare
   let hash : t -> int = Hashtbl.hash
+end
 
-  external make : Ctx.t -> t = "mk_batsmt_lit_mk" [@@noalloc]
+module Lbool = struct
+  type t = True | False | Undefined
 end
 
 module Term = struct
@@ -43,14 +44,17 @@ module Solver = struct
 
   external create_ : Ctx.t -> t = "ml_batsmt_solver_new"
   external delete_ : t -> unit = "ml_batsmt_solver_delete"
+  external mk_lit_ : t -> Lit.t = "ml_batsmt_solver_new_lit"
   external push_assumption_ : t -> Lit.t -> unit = "ml_batsmt_solver_add_assumption" [@@noalloc]
   external push_clause_lit_ : t -> Lit.t -> unit = "ml_batsmt_solver_add_clause_lit" [@@noalloc]
   external add_clause_ : t -> unit = "ml_batsmt_solver_add_clause" [@@noalloc]
-  external solve_ : t -> bool = "ml_batsmt_solver_solve" [@@noalloc]
+  external solve_ : t -> Ctx.t -> bool = "ml_batsmt_solver_solve" [@@noalloc]
+  external unsat_core_ : t -> Lit.t array = "ml_batsmt_solver_unsat_core"
+  external unsat_core_contains_ : t -> Lit.t -> bool = "ml_batsmt_solver_unsat_core_contains" [@@noalloc]
+  external value_lvl_0_ : t -> Lit.t -> int = "ml_batsmt_solver_value_lvl_0" [@@noalloc]
 
   let create (ctx:Ctx.t) : t =
     let s = create_ ctx in
-    Gc.finalise delete_ s;
     s
 
   let add_clause_l (s:t) (c: Lit.t list) : unit =
@@ -61,8 +65,22 @@ module Solver = struct
     Array.iter (push_clause_lit_ s) c;
     add_clause_ s
 
-  let solve ?(assumptions=[]) (s:t) : res =
+  let make_lit = mk_lit_
+
+  let solve ?(assumptions=[]) (s:t) (ctx:Ctx.t) : res =
     List.iter (push_assumption_ s) assumptions;
-    let is_sat = solve_ s in
+    let is_sat = solve_ s ctx in
     if is_sat then Sat else Unsat
+
+  let unsat_core = unsat_core_
+  let unsat_core_contains = unsat_core_contains_
+
+  let value_lvl_0 (s:t) (lit: Lit.t) : Lbool.t =
+    let i = value_lvl_0_ s lit in
+    if i=0 then Lbool.True
+    else if i=1 then Lbool.False
+    else (
+      assert (i=2);
+      Lbool.Undefined
+    )
 end
