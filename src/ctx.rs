@@ -30,15 +30,26 @@ pub struct Ctx {
     pub m: M,
     pub lmb: LitMapBuiltins,
     pub b: Builtins,
-    syms: FxHashMap<Rc<str>, AST>, // caching of symbols
+    syms: FxHashMap<String, AST>, // caching of symbols
     flags: Flags,
+    f: Option<AST>,
+    args: Vec<AST>,
 }
 
 #[derive(Default,Clone)]
 struct Flags {
-    injective: bit_set::BitSet,
-    cstor: bit_set::BitSet,
-    selector: bit_set::BitSet,
+    injective: BitSet,
+    cstor: BitSet,
+    selector: BitSet,
+}
+
+#[repr(u8)]
+pub enum AstKind {
+    Bool,
+    App,
+    Const,
+    // Cstor,
+    // Select,
 }
 
 pub mod ctx {
@@ -54,7 +65,7 @@ pub mod ctx {
             let b = Builtins::new(&mut m);
             let lmb = b.clone().into();
             Ctx {
-                m, b, lmb,
+                m, b, lmb, f: None, args: vec!(),
                 flags: Default::default(), syms: FxHashMap::default(),
             }
         }
@@ -72,6 +83,84 @@ pub mod ctx {
 
         pub fn set_injective(&mut self, t: &AST) { self.flags.injective.insert(t.idx() as usize); }
         pub fn set_cstor(&mut self, t: &AST) { self.flags.cstor.insert(t.idx() as usize); }
+
+        pub fn api_const(&mut self, s: &str, _arity: u32) -> AST {
+            match self.syms.get(s) {
+                Some(t) => *t,
+                None => {
+                    let t = self.m.mk_const(s);
+                    self.syms.insert(s.to_string(), t);
+                    t
+                }
+            }
+        }
+
+        pub fn api_kind(&self, t: AST) -> AstKind {
+            if t == self.b.true_ || t == self.b.false_ {
+                AstKind::Bool
+            } else if self.m.is_const(&t) {
+                // TODO: const-or-cstor
+                AstKind::Const
+            } else {
+                // TODO: select-or-app
+                assert!(self.m.is_app(&t));
+                AstKind::App
+            }
+        }
+
+        pub fn api_get_bool(&self, t: AST) -> bool {
+            if t == self.b.true_ { true }
+            else if t == self.b.false_ { false }
+            else { panic!("term is not a boolean") }
+        }
+
+        pub fn api_const_get_name(&self, t: AST) -> &str {
+            match self.m.view(&t) {
+                AstView::Const(s) => s,
+                AstView::App{..} => panic!("term is not a constant")
+            }
+        }
+
+        pub fn api_app_get_fun(&self, t: AST) -> AST {
+            match self.m.view(&t) {
+                AstView::App{f, ..} => *f,
+                AstView::Const(..) => panic!("term is not an app")
+            }
+        }
+
+        pub fn api_app_get_args(&self, t: AST) -> &[AST] {
+            match self.m.view(&t) {
+                AstView::App{args, ..} => args,
+                AstView::Const(..) => panic!("term is not an app")
+            }
+        }
+
+        pub fn api_bool(&mut self, b: bool) -> AST {
+            if b { self.b.true_ } else { self.b.false_ }
+        }
+
+        pub fn api_app_fun(&mut self, f: AST) {
+            self.f = Some(f);
+            self.args.clear();
+        }
+
+        pub fn api_app_arg(&mut self, t: AST) {
+            debug_assert!(self.f.is_some());
+            self.args.push(t)
+        }
+
+        pub fn api_app_finalize(&mut self) -> AST {
+            let f = self.f.unwrap();
+            let t = self.m.mk_app(f, &self.args);
+            self.f = None;
+            self.args.clear();
+            t
+        }
+
+        pub fn api_eq(&mut self, t1: AST, t2: AST) -> AST {
+            let f = self.b.eq;
+            self.m.mk_app(f, &[t1, t2])
+        }
     }
 
     impl theory::BoolLitCtx for Ctx {

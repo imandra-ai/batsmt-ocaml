@@ -31,7 +31,69 @@ end
 module Term = struct
   type t = int
 
-  (* TODO: constructors + view? *)
+  external const_ : Ctx.t -> string -> int -> t = "ml_batsmt_term_const" [@@noalloc]
+  external app_fun_ : Ctx.t -> t -> unit = "ml_batsmt_term_app_fun" [@@noalloc]
+  external app_arg_ : Ctx.t -> t -> unit = "ml_batsmt_term_app_arg" [@@noalloc]
+  external app_finalize_ : Ctx.t -> t = "ml_batsmt_term_app_finalize" [@@noalloc]
+  external bool_ : Ctx.t -> bool -> t = "ml_batsmt_term_bool" [@@noalloc]
+  external eq_ : Ctx.t -> t -> t -> t = "ml_batsmt_term_eq" [@@noalloc]
+
+  external kind : Ctx.t -> t -> int = "ml_batsmt_term_kind" [@@noalloc]
+  external get_const_name : Ctx.t -> t -> string = "ml_batsmt_term_get_const_name"
+  external get_app_fun : Ctx.t -> t -> t = "ml_batsmt_term_get_app_fun" [@@noalloc]
+  external get_app_n_args : Ctx.t -> t -> int = "ml_batsmt_term_get_app_n_args" [@@noalloc]
+  external get_app_nth_arg : Ctx.t -> t -> int -> t = "ml_batsmt_term_get_app_nth_arg" [@@noalloc]
+  (* TODO: constructors + select *)
+
+  let mk_bool = bool_
+  let mk_eq = eq_
+  let[@inline] mk_const ctx s ~arity : t = const_ ctx s arity
+
+  let app_l ctx f l =
+    match l with
+    | [] -> f
+    | _ ->
+      app_fun_ ctx f;
+      List.iter (app_arg_ ctx) l;
+      app_finalize_ ctx
+
+  let app_a ctx f a =
+    if Array.length a = 0 then f
+    else (
+      app_fun_ ctx f;
+      Array.iter (app_arg_ ctx) a;
+      app_finalize_ ctx
+    )
+
+  let k_bool = 0
+  let k_app = 1
+  let k_const = 2
+
+  type view =
+    | Bool of bool
+    | App of t * t list
+    | Cst_unin of string
+
+  let list_init n f =
+    let rec aux i n f =
+      if i=n then []
+      else f i :: aux (i+1) n f
+    in aux 0 n f
+
+  let view (ctx:Ctx.t) (t:t) : view =
+    (* NOTE: keep in sync with `ctx.rs: AstKind` *)
+    match kind ctx t with
+    | 0 -> (* bool *)
+      assert false (* TODO *)
+    | 1 -> (* app *)
+      let f = get_app_fun ctx t in
+      let n = get_app_n_args ctx t in
+      let args = list_init n (get_app_nth_arg ctx t) in
+      App (f, args)
+    | 2 -> (* const *)
+      let s = get_const_name ctx t in
+      Cst_unin s
+    | n -> failwith ("invalid term kind "^ string_of_int n)
 
 end
 
@@ -44,7 +106,7 @@ module Solver = struct
 
   external create_ : Ctx.t -> t = "ml_batsmt_solver_new"
   external delete_ : t -> unit = "ml_batsmt_solver_delete"
-  external mk_lit_ : t -> Lit.t = "ml_batsmt_solver_new_lit"
+  external mk_lit_ : t -> Lit.t = "ml_batsmt_solver_new_lit" [@@noalloc]
   external push_assumption_ : t -> Lit.t -> unit = "ml_batsmt_solver_add_assumption" [@@noalloc]
   external push_clause_lit_ : t -> Lit.t -> unit = "ml_batsmt_solver_add_clause_lit" [@@noalloc]
   external add_clause_ : t -> unit = "ml_batsmt_solver_add_clause" [@@noalloc]

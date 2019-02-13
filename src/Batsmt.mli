@@ -22,22 +22,26 @@ end
 module Term : sig
   type t
 
-  (* TODO
-  val mk_unin : Ctx.t -> string -> arity:int -> t
-  val mk_cstor : Ctx.t -> string -> arity:int -> t
-  val mk_select: Ctx.t -> cstor:t -> int -> t
+  val mk_const : Ctx.t -> string -> arity:int -> t
   val mk_bool : Ctx.t -> bool -> t
   val mk_eq : Ctx.t -> t -> t -> t
-  val apply : Ctx.t -> t -> t list -> t
+  val app_l : Ctx.t -> t -> t list -> t
+  val app_a : Ctx.t -> t -> t array -> t
 
   type view =
     | Bool of bool
     | App of t * t list
     | Cst_unin of string
+    (*
     | Cst_cstor of string
     | Select of { cstor: t; idx: int }
+    *)
 
   val view : Ctx.t -> t -> view
+
+  (* TODO
+  val mk_cstor : Ctx.t -> string -> arity:int -> t
+  val mk_select: Ctx.t -> cstor:t -> int -> t
 
   (** Printing, based on {!view} *)
   val pp : Ctx.t -> Format.formatter -> t -> unit

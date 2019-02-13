@@ -15,8 +15,9 @@ extern crate batsmt_cc;
 #[link(name="batsmt-cc")]
 
 use {
-    std::{ptr, mem, ops},
-    ocaml::{ToValue,Value,value}
+    std::{ptr, mem},
+    batsmt_core::ast_u32::{self, AST},
+    ocaml::{ToValue,Value,value,Str}
 };
 
 mod ctx;
@@ -35,6 +36,16 @@ fn lit_of_int(lit: i32) -> Lit {
 #[inline]
 fn int_of_lit(lit: Lit) -> i32 {
     Lit::to_int(&lit)
+}
+
+#[inline]
+fn ast_of_int(t: u32) -> AST {
+    ast_u32::manager_util::ast_from_u32(t)
+}
+
+#[inline]
+fn int_of_ast(t: AST) -> u32 {
+    t.idx()
 }
 
 // NOTE on storage:
@@ -182,96 +193,99 @@ caml!(ml_batsmt_solver_value_lvl_0, |ptr, lit|, <res>, {
     })
 } -> res);
 
-/* TODO
-
-caml!(ml_batsmt_check_assumption, |ptr, lit|, <res>, {
-    with_solver!(solver, ptr, {
-        let lit = lit.isize_val() as i32;
-
-        // check unsat-core
-        let lit = solver.get_lit(lit);
-        let r = solver.s.unsat_core_contains_var(lit.var());
-
-        res = Value::bool(r);
+caml!(ml_batsmt_term_bool, |ptr, b|, <res>, {
+    with_ctx!(ctx, ptr, {
+        let b = b.isize_val() != 0;
+        let t = ctx.api_bool(b);
+        res = Value::isize(int_of_ast(t) as isize);
     })
 } -> res);
 
-/// Convert a literal into a signed integer for the OCaml frontend
-#[inline]
-fn int_of_lit(lit: Lit) -> isize {
-    lit.var().idx() as isize * if lit.sign() { 1 } else { -1 }
-}
-
-caml!(ml_batsmt_unsat_core, |ptr|, <res>, {
-    with_solver!(solver, ptr, {
-        let core =
-            solver.s.unsat_core()
-            .iter()
-            .map(|&lit| int_of_lit(lit))
-            .collect::<Vec<_>>();
-        res = core.to_value();
+caml!(ml_batsmt_term_const, |ptr, s, arity|, <res>, {
+    with_ctx!(ctx, ptr, {
+        let s: Str = s.into();
+        let arity = arity.isize_val() as u32;
+        let t = ctx.api_const(s.as_str(), arity);
+        res = Value::isize(int_of_ast(t) as isize);
     })
 } -> res);
 
-caml!(ml_batsmt_nvars, |ptr|, <res>, {
-    with_solver!(solver, ptr, {
-        let r = solver.s.num_vars() as isize;
-        res = Value::isize(r);
-    });
-} -> res);
-
-caml!(ml_batsmt_nclauses, |ptr|, <res>, {
-    with_solver!(solver, ptr, {
-        let r = solver.s.num_clauses();
-        res = Value::isize(r as isize);
+caml!(ml_batsmt_term_eq, |ptr, t1, t2|, <res>, {
+    with_ctx!(ctx, ptr, {
+        let t1 = ast_of_int(t1.isize_val() as u32);
+        let t2 = ast_of_int(t2.isize_val() as u32);
+        let t = ctx.api_eq(t1, t2);
+        res = Value::isize(int_of_ast(t) as isize);
     })
 } -> res);
 
-caml!(ml_batsmt_nconflicts, |ptr|, <res>, {
-    with_solver!(solver, ptr, {
-        let r = solver.s.num_conflicts();
-        res = Value::isize(r as isize);
+caml!(ml_batsmt_term_app_fun, |ptr, f|, <res>, {
+    with_ctx!(ctx, ptr, {
+        let f = ast_of_int(f.isize_val() as u32);
+        ctx.api_app_fun(f);
+        res = value::UNIT;
     })
 } -> res);
 
-caml!(ml_batsmt_nprops, |ptr|, <res>, {
-    with_solver!(solver, ptr, {
-        let r = solver.s.num_propagations();
-        res = Value::isize(r as isize);
+caml!(ml_batsmt_term_app_arg, |ptr, t|, <res>, {
+    with_ctx!(ctx, ptr, {
+        let t = ast_of_int(t.isize_val() as u32);
+        ctx.api_app_arg(t);
+        res = value::UNIT;
     })
 } -> res);
 
-caml!(ml_batsmt_ndecisions, |ptr|, <res>, {
-    with_solver!(solver, ptr, {
-        let r = solver.s.num_decisions();
-        res = Value::isize(r as isize);
+caml!(ml_batsmt_term_app_finalize, |ptr|, <res>, {
+    with_ctx!(ctx, ptr, {
+        let t = ctx.api_app_finalize();
+        res = Value::isize(int_of_ast(t) as isize);
     })
 } -> res);
 
-/*
-caml!(ml_batsmt_nrestarts, |ptr|, <res>, {
-    with_solver!(solver, ptr, {
-        let r = solver.s.num_restarts();
-        res = Value::isize(r as isize);
-    })
-} -> res);
-*/
-
-caml!(ml_batsmt_n_proved, |ptr|, <res>, {
-    with_solver!(solver, ptr, {
-        let r = solver.s.proved_at_lvl_0().len();
-        res = Value::isize(r as isize);
+caml!(ml_batsmt_term_kind, |ptr, t|, <res>, {
+    with_ctx!(ctx, ptr, {
+        let t = ast_of_int(t.isize_val() as u32);
+        res = Value::isize(ctx.api_kind(t) as u8 as isize);
     })
 } -> res);
 
-caml!(ml_batsmt_get_proved, |ptr, idx|, <res>, {
-    let i = idx.isize_val() as usize;
-    with_solver!(solver, ptr, {
-        let lit = solver.s.proved_at_lvl_0()[i];
-        let lit = lit.var().idx() as isize * if lit.sign() { 1 } else { -1 };
-        res = Value::isize(lit);
+caml!(ml_batsmt_term_get_bool, |ptr, t|, <res>, {
+    with_ctx!(ctx, ptr, {
+        let t = ast_of_int(t.isize_val() as u32);
+        let b = ctx.api_get_bool(t);
+        res = Value::bool(b);
     })
 } -> res);
 
-*/
+caml!(ml_batsmt_term_const_get_name, |ptr, t|, <res>, {
+    with_ctx!(ctx, ptr, {
+        let t = ast_of_int(t.isize_val() as u32);
+        let s = ctx.api_const_get_name(t);
+        res = Value::from(Str::from(s));
+    })
+} -> res);
 
+caml!(ml_batsmt_term_get_app_fun, |ptr, t|, <res>, {
+    with_ctx!(ctx, ptr, {
+        let t = ast_of_int(t.isize_val() as u32);
+        let f = ctx.api_app_get_fun(t);
+        res = Value::isize(int_of_ast(f) as isize);
+    })
+} -> res);
+
+caml!(ml_batsmt_term_get_app_n_args, |ptr, t|, <res>, {
+    with_ctx!(ctx, ptr, {
+        let t = ast_of_int(t.isize_val() as u32);
+        let args = ctx.api_app_get_args(t);
+        res = Value::isize(args.len() as isize);
+    })
+} -> res);
+
+caml!(ml_batsmt_term_get_app_nth_arg, |ptr, t, i|, <res>, {
+    with_ctx!(ctx, ptr, {
+        let t = ast_of_int(t.isize_val() as u32);
+        let args = ctx.api_app_get_args(t);
+        let a = args[i.isize_val() as usize];
+        res = Value::isize(int_of_ast(a) as isize);
+    })
+} -> res);
