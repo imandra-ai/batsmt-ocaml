@@ -2,7 +2,7 @@
 use {
     fxhash::FxHashMap,
     bit_set::BitSet,
-    batsmt_core::{ast, ast_u32::{self,AST}, AstView},
+    batsmt_core::{ast, ast_u32::AST, AstView},
     batsmt_hast::{HManager, StrSymbolManager},
     batsmt_theory::{self as theory, LitMapBuiltins},
     batsmt_cc::{self as cc, CCView},

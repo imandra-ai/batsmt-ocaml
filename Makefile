@@ -3,6 +3,7 @@ build:
 	@dune build @install --profile=release
 
 clean:
+	@cargo clean
 	@dune clean
 
 doc:

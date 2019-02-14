@@ -97,19 +97,20 @@ module Term = struct
       Cst_unin s
     | n -> failwith ("invalid term kind "^ string_of_int n)
 
-    let pp ctx (out) t =
-      let pplist ppx out l =
-        List.iteri (fun i x -> if i>0 then Format.fprintf out "@ "; ppx out x) l
-      in
-      let rec pp out t =
-        match view ctx t with
-        | Bool b -> Format.pp_print_bool out b
-        | Cst_unin s -> Format.pp_print_string out s
-        | App (f, []) -> pp out f
-        | App (f, l) ->
-          Format.fprintf out "(@[%a@ %a@])" pp f (pplist pp) l
-      in
-      pp out t
+  let pp ctx (out) t =
+    (* TODO: print id *)
+    let pplist ppx out l =
+      List.iteri (fun i x -> if i>0 then Format.fprintf out "@ "; ppx out x) l
+    in
+    let rec pp out t =
+      match view ctx t with
+      | Bool b -> Format.pp_print_bool out b
+      | Cst_unin s -> Format.fprintf out "%s/%d" s t
+      | App (f, []) -> pp out f
+      | App (f, l) ->
+        Format.fprintf out "(@[%a@ %a@])/%d" pp f (pplist pp) l t
+    in
+    pp out t
 end
 
 type res =

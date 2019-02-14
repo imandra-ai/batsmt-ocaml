@@ -16,7 +16,7 @@ extern crate batsmt_cc;
 
 use {
     std::{ptr, mem},
-    batsmt_core::ast_u32::{self, AST},
+    batsmt_core::ast_u32::{self,AST},
     ocaml::{ToValue,Value,value,Str}
 };
 
@@ -26,7 +26,7 @@ mod solver;
 pub type Lit = solver::Lit;
 pub type Ctx = ctx::Ctx;
 pub type Solver = solver::Solver;
-pub type lbool = solver::lbool;
+pub type Lbool = solver::Lbool;
 
 #[inline]
 fn lit_of_int(lit: i32) -> Lit {
@@ -196,8 +196,8 @@ caml!(ml_batsmt_solver_value_lvl_0, |ptr, lit|, <res>, {
         let lit = lit_of_int(lit.isize_val() as i32);
         let r = solver.api_value_lvl_0(lit);
         let r =
-            if r == lbool::TRUE { 0 }
-            else if r == lbool::FALSE { 1 }
+            if r == Lbool::TRUE { 0 }
+            else if r == Lbool::FALSE { 1 }
             else { 2 };
         res = Value::isize(r);
     })

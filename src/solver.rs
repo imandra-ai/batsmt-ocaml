@@ -13,7 +13,7 @@ type Th = cc::CCTheory<Ctx, MTheories>;
 pub type Lit = solver::BLit;
 
 /// An optional truth value.
-pub type lbool = solver::solver::lbool;
+pub type Lbool = solver::solver::lbool;
 
 /// The SMT solver.
 pub struct Solver {
@@ -92,7 +92,7 @@ impl Solver {
 
     /// Obtain value of this literal at level 0.
     #[inline]
-    pub fn api_value_lvl_0(&self, lit: Lit) -> lbool {
+    pub fn api_value_lvl_0(&self, lit: Lit) -> Lbool {
         self.s.value_at_lvl_0(lit)
     }
 

@@ -42,15 +42,13 @@ module Term : sig
 
   val view : Ctx.t -> t -> view
 
+  (** Printing, based on {!view} *)
+  val pp : Ctx.t -> Format.formatter -> t -> unit
+
   (* TODO
   val mk_cstor : Ctx.t -> string -> arity:int -> t
   val mk_select: Ctx.t -> cstor:t -> int -> t
 
-  (** Printing, based on {!view} *)
-  val pp : Ctx.t -> Format.formatter -> t -> unit
-  *)
-
-  (* TODO:
      - constructors
      - selectors
      - unin-functions (from arity)

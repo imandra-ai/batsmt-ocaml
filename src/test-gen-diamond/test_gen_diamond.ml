@@ -13,7 +13,9 @@ module Solve = struct
   }
 
   let mk_lit_eq (self:t) t1 t2 : Lit.t =
-    Solver.make_term_lit self.solver self.ctx (T.mk_eq self.ctx t1 t2)
+    let t = T.mk_eq self.ctx t1 t2 in
+    Format.printf "eqn term: %a@." (T.pp self.ctx) t;
+    Solver.make_term_lit self.solver self.ctx t
 
   (* generate the problem and return the lit [x0 != xn] *)
   let gen_problem ({ctx; solver} as self) n : Lit.t =
