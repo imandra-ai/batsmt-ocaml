@@ -1,6 +1,5 @@
 
 use {
-    std::{rc::Rc},
     fxhash::FxHashMap,
     bit_set::BitSet,
     batsmt_core::{ast, ast_u32::{self,AST}, AstView},
@@ -84,7 +83,7 @@ pub mod ctx {
         pub fn set_injective(&mut self, t: &AST) { self.flags.injective.insert(t.idx() as usize); }
         pub fn set_cstor(&mut self, t: &AST) { self.flags.cstor.insert(t.idx() as usize); }
 
-        pub fn api_const(&mut self, s: &str, _arity: u32) -> AST {
+        pub fn api_const(&mut self, s: &str) -> AST {
             match self.syms.get(s) {
                 Some(t) => *t,
                 None => {

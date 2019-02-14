@@ -31,7 +31,7 @@ end
 module Term = struct
   type t = int
 
-  external const_ : Ctx.t -> string -> int -> t = "ml_batsmt_term_const" [@@noalloc]
+  external const_ : Ctx.t -> string -> t = "ml_batsmt_term_const" [@@noalloc]
   external app_fun_ : Ctx.t -> t -> unit = "ml_batsmt_term_app_fun" [@@noalloc]
   external app_arg_ : Ctx.t -> t -> unit = "ml_batsmt_term_app_arg" [@@noalloc]
   external app_finalize_ : Ctx.t -> t = "ml_batsmt_term_app_finalize" [@@noalloc]
@@ -45,9 +45,11 @@ module Term = struct
   external get_app_nth_arg : Ctx.t -> t -> int -> t = "ml_batsmt_term_get_app_nth_arg" [@@noalloc]
   (* TODO: constructors + select *)
 
+  let id (t:t) : t = t
+
   let mk_bool = bool_
   let mk_eq = eq_
-  let[@inline] mk_const ctx s ~arity : t = const_ ctx s arity
+  let[@inline] mk_const ctx s : t = const_ ctx s
 
   let app_l ctx f l =
     match l with
@@ -95,6 +97,19 @@ module Term = struct
       Cst_unin s
     | n -> failwith ("invalid term kind "^ string_of_int n)
 
+    let pp ctx (out) t =
+      let pplist ppx out l =
+        List.iteri (fun i x -> if i>0 then Format.fprintf out "@ "; ppx out x) l
+      in
+      let rec pp out t =
+        match view ctx t with
+        | Bool b -> Format.pp_print_bool out b
+        | Cst_unin s -> Format.pp_print_string out s
+        | App (f, []) -> pp out f
+        | App (f, l) ->
+          Format.fprintf out "(@[%a@ %a@])" pp f (pplist pp) l
+      in
+      pp out t
 end
 
 type res =
@@ -107,6 +122,7 @@ module Solver = struct
   external create_ : Ctx.t -> t = "ml_batsmt_solver_new"
   external delete_ : t -> unit = "ml_batsmt_solver_delete"
   external mk_lit_ : t -> Lit.t = "ml_batsmt_solver_new_lit" [@@noalloc]
+  external mk_term_lit_ : t -> Ctx.t -> Term.t -> Lit.t = "ml_batsmt_solver_new_term_lit" [@@noalloc]
   external push_assumption_ : t -> Lit.t -> unit = "ml_batsmt_solver_add_assumption" [@@noalloc]
   external push_clause_lit_ : t -> Lit.t -> unit = "ml_batsmt_solver_add_clause_lit" [@@noalloc]
   external add_clause_ : t -> unit = "ml_batsmt_solver_add_clause" [@@noalloc]
@@ -128,6 +144,7 @@ module Solver = struct
     add_clause_ s
 
   let make_lit = mk_lit_
+  let make_term_lit = mk_term_lit_
 
   let solve ?(assumptions=[]) (s:t) (ctx:Ctx.t) : res =
     List.iter (push_assumption_ s) assumptions;

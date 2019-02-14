@@ -33,7 +33,17 @@ impl Solver {
     /// Create a new boolean literal.
     #[inline]
     pub fn api_make_lit(&mut self) -> Lit {
-        Lit::from(self.s.new_bool_lit())
+        let lit = Lit::from(self.s.new_bool_lit());
+        println!("make-lit {:?}", lit);
+        lit
+    }
+
+    /// Create or get the boolean literal for this term.
+    #[inline]
+    pub fn api_make_term_lit(&mut self, ctx: &mut Ctx, t: AST) -> Lit {
+        let lit = self.s.new_term_lit(ctx, t);
+        println!("make-term-lit for {:?}: {:?}", batsmt_pretty::pp1(ctx, &t), lit);
+        lit
     }
 
     /// Add a new assumption for the next call to `solve`
@@ -88,6 +98,7 @@ impl Solver {
 
     /// Add the current clause to the SAT solver.
     pub fn api_add_clause(&mut self) {
+        println!("add clause {:?}", &self.cur_clause);
         self.s.add_bool_clause_reuse(&mut self.cur_clause);
         self.cur_clause.clear();
     }

@@ -127,6 +127,16 @@ caml!(ml_batsmt_solver_new_lit, |ptr|, <res>, {
     })
 } -> res);
 
+caml!(ml_batsmt_solver_new_term_lit, |ptr, ptr_c, t|, <res>, {
+    with_solver!(solver, ptr, {
+        with_ctx!(ctx, ptr_c, {
+            let t = ast_of_int(t.isize_val() as u32);
+            let lit = solver.api_make_term_lit(ctx, t);
+            res = Value::isize(int_of_lit(lit) as isize);
+        })
+    })
+} -> res);
+
 /// Add literal
 caml!(ml_batsmt_solver_add_clause_lit, |ptr, lit|, <res>, {
     with_solver!(solver, ptr, {
@@ -201,11 +211,10 @@ caml!(ml_batsmt_term_bool, |ptr, b|, <res>, {
     })
 } -> res);
 
-caml!(ml_batsmt_term_const, |ptr, s, arity|, <res>, {
+caml!(ml_batsmt_term_const, |ptr, s|, <res>, {
     with_ctx!(ctx, ptr, {
         let s: Str = s.into();
-        let arity = arity.isize_val() as u32;
-        let t = ctx.api_const(s.as_str(), arity);
+        let t = ctx.api_const(s.as_str());
         res = Value::isize(int_of_ast(t) as isize);
     })
 } -> res);
@@ -257,7 +266,7 @@ caml!(ml_batsmt_term_get_bool, |ptr, t|, <res>, {
     })
 } -> res);
 
-caml!(ml_batsmt_term_const_get_name, |ptr, t|, <res>, {
+caml!(ml_batsmt_term_get_const_name, |ptr, t|, <res>, {
     with_ctx!(ctx, ptr, {
         let t = ast_of_int(t.isize_val() as u32);
         let s = ctx.api_const_get_name(t);

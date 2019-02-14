@@ -10,6 +10,7 @@ module Lit : sig
   type t
 
   val abs : t -> t
+  val neg : t -> t
   val to_int : t -> int
   val sign : t -> bool
   val to_string : t -> string
@@ -22,7 +23,9 @@ end
 module Term : sig
   type t
 
-  val mk_const : Ctx.t -> string -> arity:int -> t
+  val id: t -> int
+
+  val mk_const : Ctx.t -> string -> t
   val mk_bool : Ctx.t -> bool -> t
   val mk_eq : Ctx.t -> t -> t -> t
   val app_l : Ctx.t -> t -> t list -> t
@@ -71,6 +74,10 @@ module Solver : sig
   val add_clause_a : t -> Lit.t array -> unit
 
   val make_lit : t -> Lit.t
+  (** Make a pure boolean literal *)
+
+  val make_term_lit : t -> Ctx.t -> Term.t -> Lit.t
+  (** Make a literal associated with the given term *)
 
   val solve : ?assumptions:Lit.t list -> t -> Ctx.t -> res
 

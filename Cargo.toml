@@ -14,12 +14,12 @@ ocaml = "0.5"
 bit-set = "0.5.0"
 fxhash = "0.2"
 #batsmt = "*"
-batsmt-core = { git="https://github.com/AestheticIntegration/batsmt",   rev="80702c0c8b973c962af54c0dad75253340967db3" }
-batsmt-cc = { git="https://github.com/AestheticIntegration/batsmt",     rev="80702c0c8b973c962af54c0dad75253340967db3" }
-batsmt-hast = { git="https://github.com/AestheticIntegration/batsmt",   rev="80702c0c8b973c962af54c0dad75253340967db3" }
-batsmt-theory = { git="https://github.com/AestheticIntegration/batsmt", rev="80702c0c8b973c962af54c0dad75253340967db3" }
-batsmt-solver = { git="https://github.com/AestheticIntegration/batsmt", rev="80702c0c8b973c962af54c0dad75253340967db3" }
-batsmt-pretty = { git="https://github.com/AestheticIntegration/batsmt", rev="80702c0c8b973c962af54c0dad75253340967db3" }
+batsmt-core = { git="https://github.com/AestheticIntegration/batsmt",   rev="eaa342bf4c0f44ac09748f7cc986f1823f2aa33c" }
+batsmt-cc = { git="https://github.com/AestheticIntegration/batsmt",     rev="eaa342bf4c0f44ac09748f7cc986f1823f2aa33c" }
+batsmt-hast = { git="https://github.com/AestheticIntegration/batsmt",   rev="eaa342bf4c0f44ac09748f7cc986f1823f2aa33c" }
+batsmt-theory = { git="https://github.com/AestheticIntegration/batsmt", rev="eaa342bf4c0f44ac09748f7cc986f1823f2aa33c" }
+batsmt-solver = { git="https://github.com/AestheticIntegration/batsmt", rev="eaa342bf4c0f44ac09748f7cc986f1823f2aa33c" }
+batsmt-pretty = { git="https://github.com/AestheticIntegration/batsmt", rev="eaa342bf4c0f44ac09748f7cc986f1823f2aa33c" }
 
 [workspace]
 
