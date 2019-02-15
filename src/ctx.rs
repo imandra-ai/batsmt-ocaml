@@ -116,21 +116,21 @@ pub mod ctx {
         pub fn api_const_get_name(&self, t: AST) -> &str {
             match self.m.view(&t) {
                 AstView::Const(s) => s,
-                AstView::App{..} => panic!("term is not a constant")
+                _ => panic!("term is not a constant")
             }
         }
 
         pub fn api_app_get_fun(&self, t: AST) -> AST {
             match self.m.view(&t) {
                 AstView::App{f, ..} => *f,
-                AstView::Const(..) => panic!("term is not an app")
+                _ => panic!("term is not an app")
             }
         }
 
         pub fn api_app_get_args(&self, t: AST) -> &[AST] {
             match self.m.view(&t) {
                 AstView::App{args, ..} => args,
-                AstView::Const(..) => panic!("term is not an app")
+                _ => panic!("term is not an app")
             }
         }
 
@@ -201,7 +201,7 @@ pub mod ctx {
                 CCView::Opaque(t) // shortcut
             } else {
                 match self.m.view(t) {
-                    AstView::Const(_) => CCView::Opaque(t),
+                    AstView::Const(_) | AstView::Index(..) => CCView::Opaque(t),
                     AstView::App{f, args} if *f == self.b.eq => {
                         debug_assert_eq!(args.len(), 2);
                         CCView::Eq(&args[0], &args[1])
