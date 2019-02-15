@@ -26,6 +26,8 @@ module Term : sig
   val id: t -> int
 
   val mk_const : Ctx.t -> string -> t
+  val mk_cstor : Ctx.t -> string -> t
+  val mk_select: Ctx.t -> cstor:t -> int -> t -> t
   val mk_bool : Ctx.t -> bool -> t
   val mk_eq : Ctx.t -> t -> t -> t
   val app_l : Ctx.t -> t -> t list -> t
@@ -35,10 +37,12 @@ module Term : sig
     | Bool of bool
     | App of t * t list
     | Cst_unin of string
-    (*
     | Cst_cstor of string
-    | Select of { cstor: t; idx: int }
-    *)
+    | Select of {
+        c: t;
+        idx: int;
+        sub: t;
+      }
 
   val view : Ctx.t -> t -> view
 

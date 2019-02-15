@@ -18,7 +18,7 @@ pub type Lbool = solver::solver::lbool;
 /// The SMT solver.
 pub struct Solver {
     s: solver::Solver<Ctx, Th>,
-    cur_clause: Vec<SatLit>, // TODO: actually use sat::Lit instead, convert upon push
+    cur_clause: Vec<SatLit>,
     assumptions: Vec<SatLit>,
 }
 

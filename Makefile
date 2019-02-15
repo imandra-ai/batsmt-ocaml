@@ -6,6 +6,9 @@ clean:
 	@cargo clean
 	@dune clean
 
+check:
+	@cargo check
+
 doc:
 	@dune build @doc
 

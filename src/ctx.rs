@@ -22,6 +22,7 @@ pub struct Builtins {
     pub not_: AST,
     pub eq: AST,
     pub distinct: AST,
+    pub select: AST, // pseudo-term
 }
 
 /// The main context.
@@ -37,18 +38,19 @@ pub struct Ctx {
 
 #[derive(Default,Clone)]
 struct Flags {
-    injective: BitSet,
     cstor: BitSet,
     selector: BitSet,
 }
 
+/// An enum for the various kinds of terms we have.
 #[repr(u8)]
+#[derive(Eq,PartialEq,Copy,Clone)]
 pub enum AstKind {
     Bool,
     App,
     Const,
-    // Cstor,
-    // Select,
+    Cstor,
+    Selector,
 }
 
 pub mod ctx {
@@ -76,11 +78,8 @@ pub mod ctx {
 
         pub fn lmb(&self) -> LitMapBuiltins { self.lmb.clone() }
 
-        pub fn is_injective(&self, t: &AST) -> bool { self.flags.injective.contains(t.idx() as usize) }
         pub fn is_cstor(&self, t: &AST) -> bool { self.flags.cstor.contains(t.idx() as usize) }
-        pub fn is_selector(&self, t: &AST) -> bool { self.flags.selector.contains(t.idx() as usize) }
 
-        pub fn set_injective(&mut self, t: &AST) { self.flags.injective.insert(t.idx() as usize); }
         pub fn set_cstor(&mut self, t: &AST) { self.flags.cstor.insert(t.idx() as usize); }
 
         pub fn api_const(&mut self, s: &str) -> AST {
@@ -97,13 +96,16 @@ pub mod ctx {
         pub fn api_kind(&self, t: AST) -> AstKind {
             if t == self.b.true_ || t == self.b.false_ {
                 AstKind::Bool
+            } else if self.is_cstor(&t) {
+                AstKind::Cstor
             } else if self.m.is_const(&t) {
-                // TODO: const-or-cstor
                 AstKind::Const
             } else {
-                // TODO: select-or-app
-                assert!(self.m.is_app(&t));
-                AstKind::App
+                match self.view(&t) {
+                    AstView::App{f, ..} if *f == self.b.select => AstKind::Selector,
+                    AstView::App{..} => AstKind::App,
+                    _ => unreachable!()
+                }
             }
         }
 
@@ -159,6 +161,17 @@ pub mod ctx {
         pub fn api_eq(&mut self, t1: AST, t2: AST) -> AST {
             let f = self.b.eq;
             self.m.mk_app(f, &[t1, t2])
+        }
+
+        pub fn api_set_is_cstor(&mut self, t: AST) {
+            debug_assert!({let k = self.api_kind(t); k == AstKind::Const|| k == AstKind::Cstor});
+            self.set_cstor(&t)
+        }
+
+        pub fn api_select(&mut self, c: AST, i: u32, sub: AST) -> AST {
+            debug_assert!(self.api_kind(c) == AstKind::Cstor);
+            let args = [c, self.m.mk_idx(i), sub];
+            self.m.mk_app(self.b.select, &args)
         }
     }
 
@@ -223,7 +236,7 @@ pub mod ctx {
         ) -> InjectiveView<'a, Self::F, AST>
         {
             if let AstView::App {f, args} = self.view(t) {
-                if self.is_injective(f) {
+                if self.is_cstor(f) {
                     return InjectiveView::AppInjective(f,args);
                 }
             }
@@ -251,9 +264,15 @@ pub mod ctx {
         ) -> SelectorView<'a, Self::F, AST>
         {
             if let AstView::App {f, args} = self.view(t) {
-                if self.is_selector(f) {
+                if *f == self.b.select {
                     debug_assert_eq!(3, args.len());
-                    unimplemented!(); // FIXME: how to put the integer into the AST?
+                    let c = &args[0];
+                    let idx = match self.view(&args[1]) {
+                        AstView::Index(i) => i,
+                        _ => panic!("invalid selector term"),
+                    };
+                    let sub = &args[2];
+                    return SelectorView::Select{f: c, idx, sub}
                 }
             }
             SelectorView::Other(t)
@@ -274,6 +293,7 @@ mod builtins {
                 eq: m.mk_str("="),
                 not_: m.mk_str("not"),
                 distinct: m.mk_str("distinct"),
+                select: m.mk_str("select-"),
             }
         }
     }

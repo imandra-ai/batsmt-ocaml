@@ -3,7 +3,6 @@ module Ctx = struct
   type t
 
   external create_ : unit -> t = "ml_batsmt_ctx_new"
-  external delete_ : t -> unit = "ml_batsmt_ctx_delete"
 
   let create() : t =
     let c = create_ () in
@@ -35,21 +34,32 @@ module Term = struct
   external app_fun_ : Ctx.t -> t -> unit = "ml_batsmt_term_app_fun" [@@noalloc]
   external app_arg_ : Ctx.t -> t -> unit = "ml_batsmt_term_app_arg" [@@noalloc]
   external app_finalize_ : Ctx.t -> t = "ml_batsmt_term_app_finalize" [@@noalloc]
+  external select_ : Ctx.t -> t -> int -> t -> t = "ml_batsmt_term_select" [@@noalloc]
+  external set_cstor_: Ctx.t -> t -> unit = "ml_batsmt_term_set_cstor" [@@noalloc]
   external bool_ : Ctx.t -> bool -> t = "ml_batsmt_term_bool" [@@noalloc]
   external eq_ : Ctx.t -> t -> t -> t = "ml_batsmt_term_eq" [@@noalloc]
 
   external kind : Ctx.t -> t -> int = "ml_batsmt_term_kind" [@@noalloc]
-  external get_const_name : Ctx.t -> t -> string = "ml_batsmt_term_get_const_name"
-  external get_app_fun : Ctx.t -> t -> t = "ml_batsmt_term_get_app_fun" [@@noalloc]
-  external get_app_n_args : Ctx.t -> t -> int = "ml_batsmt_term_get_app_n_args" [@@noalloc]
-  external get_app_nth_arg : Ctx.t -> t -> int -> t = "ml_batsmt_term_get_app_nth_arg" [@@noalloc]
-  (* TODO: constructors + select *)
+  external get_cst_name_ : Ctx.t -> t -> string = "ml_batsmt_term_get_const_name"
+  external get_bool_ : Ctx.t -> t -> bool = "ml_batsmt_term_get_bool" [@@noalloc]
+  external get_app_fun_ : Ctx.t -> t -> t = "ml_batsmt_term_get_app_fun" [@@noalloc]
+  external get_app_n_args_ : Ctx.t -> t -> int = "ml_batsmt_term_get_app_n_args" [@@noalloc]
+  external get_app_nth_arg_ : Ctx.t -> t -> int -> t = "ml_batsmt_term_get_app_nth_arg" [@@noalloc]
+  external get_select_ : Ctx.t -> t -> (t * int * t) = "ml_batsmt_term_get_select"
 
   let id (t:t) : t = t
 
   let mk_bool = bool_
   let mk_eq = eq_
   let[@inline] mk_const ctx s : t = const_ ctx s
+
+  let mk_cstor ctx s : t =
+    let c = mk_const ctx s in
+    set_cstor_ ctx c;
+    c
+
+  let[@inline] mk_select ctx ~cstor idx u : t =
+    select_ ctx cstor idx u
 
   let app_l ctx f l =
     match l with
@@ -67,14 +77,16 @@ module Term = struct
       app_finalize_ ctx
     )
 
-  let k_bool = 0
-  let k_app = 1
-  let k_const = 2
-
   type view =
     | Bool of bool
     | App of t * t list
     | Cst_unin of string
+    | Cst_cstor of string
+    | Select of {
+        c: t;
+        idx: int;
+        sub: t;
+      }
 
   let list_init n f =
     let rec aux i n f =
@@ -86,15 +98,22 @@ module Term = struct
     (* NOTE: keep in sync with `ctx.rs: AstKind` *)
     match kind ctx t with
     | 0 -> (* bool *)
-      assert false (* TODO *)
+      let b = get_bool_ ctx t in
+      Bool b
     | 1 -> (* app *)
-      let f = get_app_fun ctx t in
-      let n = get_app_n_args ctx t in
-      let args = list_init n (get_app_nth_arg ctx t) in
+      let f = get_app_fun_ ctx t in
+      let n = get_app_n_args_ ctx t in
+      let args = list_init n (get_app_nth_arg_ ctx t) in
       App (f, args)
     | 2 -> (* const *)
-      let s = get_const_name ctx t in
+      let s = get_cst_name_ ctx t in
       Cst_unin s
+    | 3 -> (* cstor *)
+      let s = get_cst_name_ ctx t in
+      Cst_cstor s
+    | 4 -> (* select *)
+      let c, idx, sub = get_select_ ctx t in
+      Select {c; idx; sub}
     | n -> failwith ("invalid term kind "^ string_of_int n)
 
   let pp ctx (out) t =
@@ -106,9 +125,12 @@ module Term = struct
       match view ctx t with
       | Bool b -> Format.pp_print_bool out b
       | Cst_unin s -> Format.fprintf out "%s/%d" s t
+      | Cst_cstor s -> Format.fprintf out "%s/%d" s t
       | App (f, []) -> pp out f
       | App (f, l) ->
         Format.fprintf out "(@[%a@ %a@])/%d" pp f (pplist pp) l t
+      | Select {c; idx; sub} ->
+        Format.fprintf out "(@[select-%d-%a@ %a@])/%d" idx pp c pp sub t
     in
     pp out t
 end
@@ -121,7 +143,6 @@ module Solver = struct
   type t
 
   external create_ : Ctx.t -> t = "ml_batsmt_solver_new"
-  external delete_ : t -> unit = "ml_batsmt_solver_delete"
   external mk_lit_ : t -> Lit.t = "ml_batsmt_solver_new_lit" [@@noalloc]
   external mk_term_lit_ : t -> Ctx.t -> Term.t -> Lit.t = "ml_batsmt_solver_new_term_lit" [@@noalloc]
   external push_assumption_ : t -> Lit.t -> unit = "ml_batsmt_solver_add_assumption" [@@noalloc]

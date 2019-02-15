@@ -20,7 +20,7 @@
   (libraries threads)
   (wrapped false)
   (modules batsmt)
-  (flags :standard -safe-string -w @8)
+  (flags :standard -warn-error -3-32-50 -safe-string -w @8)
   (c_library_flags :standard -ldl -lpthread) ; -lbatsmt_c) ; -static)
   ;(modes native)
   (self_build_stubs_archive (batsmt)) ; custom!

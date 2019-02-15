@@ -17,7 +17,8 @@ extern crate batsmt_cc;
 use {
     std::{ptr, mem},
     batsmt_core::ast_u32::{self,AST},
-    ocaml::{ToValue,Value,value,Str}
+    batsmt_cc::{HasSelector, SelectorView},
+    ocaml::{ToValue,Value,value,Str,Tuple}
 };
 
 mod ctx;
@@ -219,12 +220,30 @@ caml!(ml_batsmt_term_const, |ptr, s|, <res>, {
     })
 } -> res);
 
+caml!(ml_batsmt_term_set_cstor, |ptr, t|, <res>, {
+    with_ctx!(ctx, ptr, {
+        let t = ast_of_int(t.isize_val() as u32);
+        ctx.api_set_is_cstor(t);
+        res = value::UNIT;
+    })
+} -> res);
+
 caml!(ml_batsmt_term_eq, |ptr, t1, t2|, <res>, {
     with_ctx!(ctx, ptr, {
         let t1 = ast_of_int(t1.isize_val() as u32);
         let t2 = ast_of_int(t2.isize_val() as u32);
         let t = ctx.api_eq(t1, t2);
         res = Value::isize(int_of_ast(t) as isize);
+    })
+} -> res);
+
+caml!(ml_batsmt_term_select, |ptr, c, idx, u|, <res>, {
+    with_ctx!(ctx, ptr, {
+        let c = ast_of_int(c.isize_val() as u32);
+        let u = ast_of_int(u.isize_val() as u32);
+        let idx = idx.isize_val() as u32;
+        let r = ctx.api_select(c, idx, u);
+        res = Value::isize(int_of_ast(r) as isize);
     })
 } -> res);
 
@@ -296,5 +315,21 @@ caml!(ml_batsmt_term_get_app_nth_arg, |ptr, t, i|, <res>, {
         let args = ctx.api_app_get_args(t);
         let a = args[i.isize_val() as usize];
         res = Value::isize(int_of_ast(a) as isize);
+    })
+} -> res);
+
+caml!(ml_batsmt_term_get_select, |ptr, t|, <res>, {
+    with_ctx!(ctx, ptr, {
+        let t = ast_of_int(t.isize_val() as u32);
+        let mut tup = Tuple::new(3);
+        match ctx.view_as_selector(&t) {
+            SelectorView::Other(..) => panic!("not a select term"),
+            SelectorView::Select{f, idx, sub} => {
+                let _ = tup.set(0, Value::isize(int_of_ast(*f) as isize));
+                let _ = tup.set(1, Value::isize(idx as isize));
+                let _ = tup.set(2, Value::isize(int_of_ast(*sub) as isize));
+            },
+        };
+        res = tup.into();
     })
 } -> res);
