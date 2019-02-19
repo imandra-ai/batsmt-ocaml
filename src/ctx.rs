@@ -56,7 +56,7 @@ pub enum AstKind {
 pub mod ctx {
     use {super::*, batsmt_core::Manager};
     use cc::intf::{
-        HasSelector,SelectorView,HasInjectivity,InjectiveView,HasDisjointness,
+        HasConstructor, ConstructorView as CView,
     };
 
     impl Ctx {
@@ -228,43 +228,21 @@ pub mod ctx {
         }
     }
 
-    impl HasInjectivity<AST> for Ctx {
+    impl HasConstructor<AST> for Ctx {
         type F = AST;
 
-        fn view_as_injective<'a>(
+        fn view_as_constructor<'a>(
             &'a self, t: &'a AST
-        ) -> InjectiveView<'a, Self::F, AST>
+        ) -> CView<'a, Self::F, AST>
         {
-            if let AstView::App {f, args} = self.view(t) {
-                if self.is_cstor(f) {
-                    return InjectiveView::AppInjective(f,args);
-                }
-            }
-            InjectiveView::Other(t)
-        }
-    }
-
-    impl HasDisjointness<AST> for Ctx {
-        type F = AST;
-
-        fn get_disjoint_label(&self, t: &AST) -> Option<Self::F> {
             match self.view(t) {
-                AstView::App{f, args: _} if self.is_cstor(f) => {
-                    Some(*f)
+                AstView::Const(_) if self.is_cstor(t) => {
+                    CView::AppConstructor(t, &[])
                 },
-                AstView::Const(_) if self.is_cstor(t) => Some(*t),
-                _ => None,
-            }
-        }
-    }
-
-    impl HasSelector<AST> for Ctx {
-        fn view_as_selector<'a>(
-            &'a self, t: &'a AST
-        ) -> SelectorView<'a, Self::F, AST>
-        {
-            if let AstView::App {f, args} = self.view(t) {
-                if *f == self.b.select {
+                AstView::App {f, args} if self.is_cstor(f) => {
+                    CView::AppConstructor(f,args)
+                },
+                AstView::App {f, args} if *f == self.b.select => {
                     debug_assert_eq!(3, args.len());
                     let c = &args[0];
                     let idx = match self.view(&args[1]) {
@@ -272,10 +250,12 @@ pub mod ctx {
                         _ => panic!("invalid selector term"),
                     };
                     let sub = &args[2];
-                    return SelectorView::Select{f: c, idx, sub}
-                }
+                    CView::Select{f: c, idx, sub}
+                },
+                _ => {
+                    CView::Other(t)
+                },
             }
-            SelectorView::Other(t)
         }
     }
 }

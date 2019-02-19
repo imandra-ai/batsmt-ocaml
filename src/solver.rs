@@ -6,7 +6,7 @@ use {
     crate::ctx::Ctx,
 };
 
-type MTheories = (ccth::Selector<AST>, ccth::Disjointness<AST>);
+type MTheories = (ccth::Constructor<AST>, );
 type Th = cc::CCTheory<Ctx, MTheories>;
 
 /// A boolean literal.
@@ -34,7 +34,7 @@ impl Solver {
     #[inline]
     pub fn api_make_lit(&mut self) -> Lit {
         let lit = Lit::from(self.s.new_bool_lit());
-        println!("make-lit {:?}", lit);
+        //println!("make-lit {:?}", lit);
         lit
     }
 
@@ -42,7 +42,7 @@ impl Solver {
     #[inline]
     pub fn api_make_term_lit(&mut self, ctx: &mut Ctx, t: AST) -> Lit {
         let lit = self.s.new_term_lit(ctx, t);
-        println!("make-term-lit for {:?}: {:?}", batsmt_pretty::pp1(ctx, &t), lit);
+        //println!("make-term-lit for {:?}: {:?}", batsmt_pretty::pp1(ctx, &t), lit);
         lit
     }
 
@@ -98,7 +98,7 @@ impl Solver {
 
     /// Add the current clause to the SAT solver.
     pub fn api_add_clause(&mut self) {
-        println!("add clause {:?}", &self.cur_clause);
+        //println!("add clause {:?}", &self.cur_clause);
         self.s.add_bool_clause_reuse(&mut self.cur_clause);
         self.cur_clause.clear();
     }

@@ -17,7 +17,7 @@ extern crate batsmt_cc;
 use {
     std::{ptr, mem},
     batsmt_core::ast_u32::{self,AST},
-    batsmt_cc::{HasSelector, SelectorView},
+    batsmt_cc::{HasConstructor, ConstructorView as CView},
     ocaml::{ToValue,Value,value,Str,Tuple}
 };
 
@@ -322,13 +322,13 @@ caml!(ml_batsmt_term_get_select, |ptr, t|, <res>, {
     with_ctx!(ctx, ptr, {
         let t = ast_of_int(t.isize_val() as u32);
         let mut tup = Tuple::new(3);
-        match ctx.view_as_selector(&t) {
-            SelectorView::Other(..) => panic!("not a select term"),
-            SelectorView::Select{f, idx, sub} => {
+        match ctx.view_as_constructor(&t) {
+            CView::Select{f, idx, sub} => {
                 let _ = tup.set(0, Value::isize(int_of_ast(*f) as isize));
                 let _ = tup.set(1, Value::isize(idx as isize));
                 let _ = tup.set(2, Value::isize(int_of_ast(*sub) as isize));
             },
+            _ => panic!("not a select term"),
         };
         res = tup.into();
     })
