@@ -12,6 +12,8 @@ check:
 doc:
 	@dune build @doc
 
+dev: build test
+
 test:
 	@dune runtest --force --no-buffer
 
@@ -34,8 +36,6 @@ build-rust-stubs: cargo-config-file
 	else \
 		cargo build $(CARGO_FLAGS) ; \
   	fi
-
-all: build test
 
 reindent:
 	@find src '(' -name '*.ml' -or -name '*.mli' ')' -print0 | xargs -0 echo "reindenting: "

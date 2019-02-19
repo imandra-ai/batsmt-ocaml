@@ -1,6 +1,13 @@
 
 module S = Batsmt
 
+let debug_ = ref false
+let logf_ msg =
+  if !debug_ then (
+    Format.eprintf msg
+  ) else
+    Format.ifprintf Format.err_formatter msg
+
 module Solve = struct
   module Ctx = S.Ctx
   module T = S.Term
@@ -14,7 +21,7 @@ module Solve = struct
 
   let mk_lit_eq (self:t) t1 t2 : Lit.t =
     let t = T.mk_eq self.ctx t1 t2 in
-    Format.printf "eqn term: %a@." (T.pp self.ctx) t;
+    logf_ "eqn term: %a@." (T.pp self.ctx) t;
     Solver.make_term_lit self.solver self.ctx t
 
   (* generate the problem and return the lit [x0 != xn] *)
@@ -27,7 +34,7 @@ module Solve = struct
       let z = T.mk_const ctx (Printf.sprintf "z%d" @@ i-1) in
       let branch = Solver.make_lit solver in
 
-      Format.printf "lit: %a@." Lit.pp branch;
+      logf_ "lit: %a@." Lit.pp branch;
 
       Solver.add_clause_l solver [Lit.neg branch; mk_lit_eq self !prev_x y];
       Solver.add_clause_l solver [Lit.neg branch; mk_lit_eq self y x];
@@ -44,17 +51,17 @@ module Solve = struct
     | S.Unsat -> Format.printf "UNSAT@."
 
   let top n : unit =
-    Format.printf  "create ctx and solver@.";
+    logf_  "create ctx and solver@.";
     let ctx = S.Ctx.create() in
     let solver = S.Solver.create ctx in
     let st = { ctx; solver } in
     let lit = gen_problem st n in
-    Format.printf "solve with no assumption:@.";
+    logf_ "solve with no assumption:@.";
     pp_res @@ S.Solver.solve st.solver st.ctx;
-    Format.printf "solve with assumption x0!=xn@.";
+    logf_ "solve with assumption x0!=xn@.";
     pp_res @@ S.Solver.solve ~assumptions:[lit] st.solver st.ctx;
     let ucore = S.Solver.unsat_core solver in
-    Format.printf "unsat-core: [@[%a@]]@." (Format.pp_print_list Lit.pp) (Array.to_list ucore);
+    logf_ "unsat-core: [@[%a@]]@." (Format.pp_print_list Lit.pp) (Array.to_list ucore);
     ()
 end
 
@@ -64,9 +71,10 @@ let () =
   let n = ref 5 in
   let opts = [
     "-n", Arg.Set_int n, " size of diamond problem";
+    "-d", Arg.Set debug_, " enable debug";
   ] |> Arg.align
   in
   let usage = "test_gen_diamond [opts]" in
   Arg.parse opts (fun _ -> raise (Arg.Help usage)) usage;
-  Format.printf "solve for %d@." !n;
+  logf_ "solve for %d@." !n;
   solve_for ~n:!n ()

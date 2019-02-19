@@ -2,3 +2,16 @@
 (executable
   (name test_gen_diamond)
   (libraries batsmt containers))
+
+(rule
+  (with-stdout-to diamond5.output (run ./test_gen_diamond.exe -n 5)))
+(rule
+  (with-stdout-to diamond8.output (run ./test_gen_diamond.exe -n 8)))
+
+(alias
+  (name runtest)
+  (action (diff diamond5.output diamond5.expected)))
+
+(alias
+  (name runtest)
+  (action (diff diamond8.output diamond8.expected)))
