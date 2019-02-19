@@ -10,8 +10,10 @@
 
 (alias
   (name runtest)
+  (deps ./diamond5.expected)
   (action (diff diamond5.output diamond5.expected)))
 
 (alias
   (name runtest)
+  (deps ./diamond8.expected)
   (action (diff diamond8.output diamond8.expected)))
