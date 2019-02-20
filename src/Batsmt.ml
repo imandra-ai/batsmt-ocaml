@@ -152,6 +152,7 @@ module Solver = struct
   external unsat_core_ : t -> Lit.t array = "ml_batsmt_solver_unsat_core"
   external unsat_core_contains_ : t -> Lit.t -> bool = "ml_batsmt_solver_unsat_core_contains" [@@noalloc]
   external value_lvl_0_ : t -> Lit.t -> int = "ml_batsmt_solver_value_lvl_0" [@@noalloc]
+  external value_ : t -> Lit.t -> int = "ml_batsmt_solver_value" [@@noalloc]
 
   let create (ctx:Ctx.t) : t =
     let s = create_ ctx in
@@ -176,12 +177,12 @@ module Solver = struct
   let unsat_core = unsat_core_
   let unsat_core_contains = unsat_core_contains_
 
-  let value_lvl_0 (s:t) (lit: Lit.t) : Lbool.t =
-    let i = value_lvl_0_ s lit in
-    if i=0 then Lbool.True
-    else if i=1 then Lbool.False
-    else (
-      assert (i=2);
-      Lbool.Undefined
-    )
+  let lbool_of_int_ = function
+    | 0 -> Lbool.True
+    | 1 -> Lbool.False
+    | 2 -> Lbool.Undefined
+    | _ -> assert false
+
+  let value_lvl_0 (s:t) (lit: Lit.t) : Lbool.t = value_lvl_0_ s lit |> lbool_of_int_
+  let value (s:t) (lit: Lit.t) : Lbool.t = value_ s lit |> lbool_of_int_
 end

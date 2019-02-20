@@ -96,6 +96,12 @@ impl Solver {
         self.s.value_at_lvl_0(lit)
     }
 
+    /// Obtain value of this literal in the model.
+    #[inline]
+    pub fn api_value(&self, lit: Lit) -> Lbool {
+        self.s.value_lit(lit)
+    }
+
     /// Add the current clause to the SAT solver.
     pub fn api_add_clause(&mut self) {
         //println!("add clause {:?}", &self.cur_clause);

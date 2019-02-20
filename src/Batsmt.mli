@@ -87,6 +87,9 @@ module Solver : sig
   val unsat_core_contains : t -> Lit.t -> bool
   val value_lvl_0 : t -> Lit.t -> Lbool.t
 
+  (** Value in the model *)
+  val value : t -> Lit.t -> Lbool.t
+
   (* TODO:
     - unsat core
     - model

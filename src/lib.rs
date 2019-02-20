@@ -49,6 +49,13 @@ fn int_of_ast(t: AST) -> u32 {
     t.idx()
 }
 
+#[inline]
+fn int_of_lbool(r: Lbool) -> isize {
+    if r == Lbool::TRUE { 0 }
+    else if r == Lbool::FALSE { 1 }
+    else { 2 }
+}
+
 // NOTE on storage:
 // we use an OCaml custom block to store the pointer to the Solver (not the
 // solver itself). Similarly for the context.
@@ -196,11 +203,15 @@ caml!(ml_batsmt_solver_value_lvl_0, |ptr, lit|, <res>, {
     with_solver!(solver, ptr, {
         let lit = lit_of_int(lit.isize_val() as i32);
         let r = solver.api_value_lvl_0(lit);
-        let r =
-            if r == Lbool::TRUE { 0 }
-            else if r == Lbool::FALSE { 1 }
-            else { 2 };
-        res = Value::isize(r);
+        res = Value::isize(int_of_lbool(r));
+    })
+} -> res);
+
+caml!(ml_batsmt_solver_value, |ptr, lit|, <res>, {
+    with_solver!(solver, ptr, {
+        let lit = lit_of_int(lit.isize_val() as i32);
+        let r = solver.api_value(lit);
+        res = Value::isize(int_of_lbool(r));
     })
 } -> res);
 
