@@ -70,6 +70,8 @@ type res =
   | Sat
   | Unsat
 
+exception E_unsat
+
 module Solver : sig
   type t
 
@@ -87,8 +89,18 @@ module Solver : sig
   val simplify : t -> res
   (** Boolean simplification *)
 
+  val simplify_exn : t -> unit
+  (** Same as {!simplify} but:
+      @raise E_unsat if problem is unsat *)
+
   val solve_a : ?assumptions:Lit.t array -> t -> Ctx.t -> res
   val solve : ?assumptions:Lit.t list -> t -> Ctx.t -> res
+
+  val solve_exn_a : ?assumptions:Lit.t array -> t -> Ctx.t -> unit
+  (** Same as {!solve_a}, but @raise E_unsat if unsat *)
+
+  val solve_exn : ?assumptions:Lit.t list -> t -> Ctx.t -> unit
+  (** Same as {!solve}, but @raise E_unsat if unsat *)
 
   val unsat_core : t -> Lit.t array
   val unsat_core_contains : t -> Lit.t -> bool

@@ -147,6 +147,8 @@ type res =
   | Sat
   | Unsat
 
+exception E_unsat
+
 module Solver = struct
   type t
 
@@ -182,15 +184,28 @@ module Solver = struct
   let simplify (s:t) : res =
     if simplify_ s then Sat else Unsat
 
+  let simplify_exn (s:t) : unit =
+    if simplify_ s then () else raise E_unsat
+
   let solve_a ?(assumptions=[||]) (s:t) (ctx:Ctx.t) : res =
     Array.iter (push_assumption_ s) assumptions;
     let is_sat = solve_ s ctx in
     if is_sat then Sat else Unsat
 
+  let solve_exn_a ?(assumptions=[||]) (s:t) (ctx:Ctx.t) : unit =
+    Array.iter (push_assumption_ s) assumptions;
+    let is_sat = solve_ s ctx in
+    if is_sat then () else raise E_unsat
+
   let solve ?(assumptions=[]) (s:t) (ctx:Ctx.t) : res =
     List.iter (push_assumption_ s) assumptions;
     let is_sat = solve_ s ctx in
     if is_sat then Sat else Unsat
+
+  let solve_exn ?(assumptions=[]) (s:t) (ctx:Ctx.t) : unit =
+    List.iter (push_assumption_ s) assumptions;
+    let is_sat = solve_ s ctx in
+    if is_sat then () else raise E_unsat
 
   let unsat_core = unsat_core_
   let unsat_core_contains = unsat_core_contains_
