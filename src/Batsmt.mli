@@ -61,6 +61,9 @@ end
 
 module Lbool : sig
   type t = True | False | Undefined
+  val equal : t -> t -> bool
+  val to_string : t -> string
+  val pp : Format.formatter -> t -> unit
 end
 
 type res =

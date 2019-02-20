@@ -25,6 +25,14 @@ end
 
 module Lbool = struct
   type t = True | False | Undefined
+
+  let equal : t -> t -> bool = (=)
+  let to_string = function
+    | True -> "true"
+    | False -> "false"
+    | Undefined -> "undefined"
+
+  let pp out l = Format.pp_print_string out (to_string l)
 end
 
 module Term = struct
