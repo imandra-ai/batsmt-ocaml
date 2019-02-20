@@ -181,6 +181,13 @@ caml!(ml_batsmt_solver_solve, |ptr_s, ptr_ctx|, <res>, {
     })
 } -> res);
 
+caml!(ml_batsmt_solver_simplify, |ptr_s|, <res>, {
+    with_solver!(solver, ptr_s, {
+        let r = solver.api_simplify();
+        res = Value::bool(r);
+    });
+} -> res);
+
 caml!(ml_batsmt_solver_unsat_core, |ptr|, <res>, {
     with_solver!(solver, ptr, {
         let core =

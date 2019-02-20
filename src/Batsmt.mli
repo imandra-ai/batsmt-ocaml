@@ -84,6 +84,9 @@ module Solver : sig
   val make_term_lit : t -> Ctx.t -> Term.t -> Lit.t
   (** Make a literal associated with the given term *)
 
+  val simplify : t -> res
+  (** Boolean simplification *)
+
   val solve_a : ?assumptions:Lit.t array -> t -> Ctx.t -> res
   val solve : ?assumptions:Lit.t list -> t -> Ctx.t -> res
 
@@ -102,12 +105,6 @@ module Solver : sig
   val n_conflicts : t -> int
   val n_decisions: t -> int
   val n_props : t -> int
-
-  (* TODO:
-    - unsat core
-    - model
-    - add-term-lit (bidir mapping)
-  *)
 end
 
 (* TODO: insert [blit -> term] *)

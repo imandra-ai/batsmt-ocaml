@@ -22,6 +22,14 @@ pub struct Solver {
     assumptions: Vec<SatLit>,
 }
 
+#[inline]
+fn bool_of_res(r: solver::solver::Res) -> bool {
+    match r {
+        solver::solver::Res::SAT => true,
+        solver::solver::Res::UNSAT => false,
+    }
+}
+
 impl Solver {
     /// Create a new solver with the given context.
     pub fn new(c: &mut Ctx) -> Self {
@@ -62,10 +70,12 @@ impl Solver {
     pub fn api_solve(&mut self, c: &mut Ctx) -> bool {
         let r = self.s.solve_with(c, &self.assumptions[..]);
         self.assumptions.clear();
-        match r {
-            solver::solver::Res::SAT => true,
-            solver::solver::Res::UNSAT => false,
-        }
+        bool_of_res(r)
+    }
+
+    pub fn api_simplify(&mut self) -> bool {
+        let r = self.s.sat_simplify();
+        bool_of_res(r)
     }
 
     /// Obtain unsat-core (subset of assumptions).

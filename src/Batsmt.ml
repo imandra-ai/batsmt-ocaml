@@ -177,6 +177,11 @@ module Solver = struct
   let make_lit = mk_lit_
   let make_term_lit = mk_term_lit_
 
+  external simplify_ : t -> bool = "ml_batsmt_solver_simplify"
+
+  let simplify (s:t) : res =
+    if simplify_ s then Sat else Unsat
+
   let solve_a ?(assumptions=[||]) (s:t) (ctx:Ctx.t) : res =
     Array.iter (push_assumption_ s) assumptions;
     let is_sat = solve_ s ctx in
