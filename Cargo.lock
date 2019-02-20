@@ -11,7 +11,7 @@ dependencies = [
 [[package]]
 name = "batsmt-cc"
 version = "0.1.0"
-source = "git+https://github.com/AestheticIntegration/batsmt#817694fdee1c5c7310f5fdacd9681b2cd712533a"
+source = "git+https://github.com/AestheticIntegration/batsmt#1ac5de9fb6ad5e36ad89bdae6151b53d98881cca"
 dependencies = [
  "batsmt-core 0.1.0 (git+https://github.com/AestheticIntegration/batsmt)",
  "batsmt-pretty 0.1.0 (git+https://github.com/AestheticIntegration/batsmt)",
@@ -24,7 +24,7 @@ dependencies = [
 [[package]]
 name = "batsmt-core"
 version = "0.1.0"
-source = "git+https://github.com/AestheticIntegration/batsmt#817694fdee1c5c7310f5fdacd9681b2cd712533a"
+source = "git+https://github.com/AestheticIntegration/batsmt#1ac5de9fb6ad5e36ad89bdae6151b53d98881cca"
 dependencies = [
  "batsmt-pretty 0.1.0 (git+https://github.com/AestheticIntegration/batsmt)",
  "bit-set 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -35,7 +35,7 @@ dependencies = [
 [[package]]
 name = "batsmt-hast"
 version = "0.1.0"
-source = "git+https://github.com/AestheticIntegration/batsmt#817694fdee1c5c7310f5fdacd9681b2cd712533a"
+source = "git+https://github.com/AestheticIntegration/batsmt#1ac5de9fb6ad5e36ad89bdae6151b53d98881cca"
 dependencies = [
  "batsmt-core 0.1.0 (git+https://github.com/AestheticIntegration/batsmt)",
  "batsmt-pretty 0.1.0 (git+https://github.com/AestheticIntegration/batsmt)",
@@ -46,7 +46,7 @@ dependencies = [
 [[package]]
 name = "batsmt-pretty"
 version = "0.1.0"
-source = "git+https://github.com/AestheticIntegration/batsmt#817694fdee1c5c7310f5fdacd9681b2cd712533a"
+source = "git+https://github.com/AestheticIntegration/batsmt#1ac5de9fb6ad5e36ad89bdae6151b53d98881cca"
 dependencies = [
  "pretty 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -54,7 +54,7 @@ dependencies = [
 [[package]]
 name = "batsmt-solver"
 version = "0.1.0"
-source = "git+https://github.com/AestheticIntegration/batsmt#817694fdee1c5c7310f5fdacd9681b2cd712533a"
+source = "git+https://github.com/AestheticIntegration/batsmt#1ac5de9fb6ad5e36ad89bdae6151b53d98881cca"
 dependencies = [
  "batsat 0.3.1 (git+https://github.com/c-cube/batsat)",
  "batsmt-core 0.1.0 (git+https://github.com/AestheticIntegration/batsmt)",
@@ -81,7 +81,7 @@ dependencies = [
 [[package]]
 name = "batsmt-theory"
 version = "0.1.0"
-source = "git+https://github.com/AestheticIntegration/batsmt#817694fdee1c5c7310f5fdacd9681b2cd712533a"
+source = "git+https://github.com/AestheticIntegration/batsmt#1ac5de9fb6ad5e36ad89bdae6151b53d98881cca"
 dependencies = [
  "batsmt-core 0.1.0 (git+https://github.com/AestheticIntegration/batsmt)",
  "batsmt-pretty 0.1.0 (git+https://github.com/AestheticIntegration/batsmt)",

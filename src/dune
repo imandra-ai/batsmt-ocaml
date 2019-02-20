@@ -27,4 +27,4 @@
   ;(c_names batsmt_stubs)
   (c_flags -fPIC -std=c99)
   (no_dynlink)
-  )
+)
