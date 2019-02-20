@@ -199,6 +199,36 @@ caml!(ml_batsmt_solver_unsat_core_contains, |ptr, lit|, <res>, {
     })
 } -> res);
 
+caml!(ml_batsmt_nclauses, |ptr, lit|, <res>, {
+    with_solver!(solver, ptr, {
+        res = Value::isize( solver.api_n_clauses() as isize );
+    })
+} -> res);
+
+caml!(ml_batsmt_nlits, |ptr, lit|, <res>, {
+    with_solver!(solver, ptr, {
+        res = Value::isize( solver.api_n_lits() as isize );
+    })
+} -> res);
+
+caml!(ml_batsmt_ndecisions, |ptr, lit|, <res>, {
+    with_solver!(solver, ptr, {
+        res = Value::isize( solver.api_n_decisions() as isize );
+    })
+} -> res);
+
+caml!(ml_batsmt_nprops, |ptr, lit|, <res>, {
+    with_solver!(solver, ptr, {
+        res = Value::isize( solver.api_n_props() as isize );
+    })
+} -> res);
+
+caml!(ml_batsmt_nconflicts, |ptr, lit|, <res>, {
+    with_solver!(solver, ptr, {
+        res = Value::isize( solver.api_n_conflicts() as isize );
+    })
+} -> res);
+
 caml!(ml_batsmt_solver_value_lvl_0, |ptr, lit|, <res>, {
     with_solver!(solver, ptr, {
         let lit = lit_of_int(lit.isize_val() as i32);
@@ -212,6 +242,22 @@ caml!(ml_batsmt_solver_value, |ptr, lit|, <res>, {
         let lit = lit_of_int(lit.isize_val() as i32);
         let r = solver.api_value(lit);
         res = Value::isize(int_of_lbool(r));
+    })
+} -> res);
+
+caml!(ml_batsmt_solver_n_proved_lvl_0, |ptr|, <res>, {
+    with_solver!(solver, ptr, {
+        let r = solver.api_proved_at_lvl_0();
+        res = Value::isize(r.len() as isize);
+    })
+} -> res);
+
+caml!(ml_batsmt_solver_proved_lvl_0, |ptr, idx|, <res>, {
+    with_solver!(solver, ptr, {
+        let idx = idx.isize_val() as usize;
+        let r = solver.api_proved_at_lvl_0();
+        let lit = Lit::new(r[idx]);
+        res = Value::isize(int_of_lit(lit) as isize);
     })
 } -> res);
 

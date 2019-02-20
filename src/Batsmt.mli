@@ -84,6 +84,7 @@ module Solver : sig
   val make_term_lit : t -> Ctx.t -> Term.t -> Lit.t
   (** Make a literal associated with the given term *)
 
+  val solve_a : ?assumptions:Lit.t array -> t -> Ctx.t -> res
   val solve : ?assumptions:Lit.t list -> t -> Ctx.t -> res
 
   val unsat_core : t -> Lit.t array
@@ -92,6 +93,15 @@ module Solver : sig
 
   (** Value in the model *)
   val value : t -> Lit.t -> Lbool.t
+
+  val n_proved_lvl_0 : t -> int
+  val proved_lvl_0 : t -> int -> Lit.t
+
+  val n_lits : t -> int
+  val n_clauses : t -> int
+  val n_conflicts : t -> int
+  val n_decisions: t -> int
+  val n_props : t -> int
 
   (* TODO:
     - unsat core

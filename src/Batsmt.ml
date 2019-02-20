@@ -177,6 +177,11 @@ module Solver = struct
   let make_lit = mk_lit_
   let make_term_lit = mk_term_lit_
 
+  let solve_a ?(assumptions=[||]) (s:t) (ctx:Ctx.t) : res =
+    Array.iter (push_assumption_ s) assumptions;
+    let is_sat = solve_ s ctx in
+    if is_sat then Sat else Unsat
+
   let solve ?(assumptions=[]) (s:t) (ctx:Ctx.t) : res =
     List.iter (push_assumption_ s) assumptions;
     let is_sat = solve_ s ctx in
@@ -193,4 +198,13 @@ module Solver = struct
 
   let value_lvl_0 (s:t) (lit: Lit.t) : Lbool.t = value_lvl_0_ s lit |> lbool_of_int_
   let value (s:t) (lit: Lit.t) : Lbool.t = value_ s lit |> lbool_of_int_
+
+  external n_lits: t -> int = "ml_batsmt_nlits" [@@noalloc]
+  external n_clauses : t -> int = "ml_batsmt_nclauses" [@@noalloc]
+  external n_conflicts : t -> int = "ml_batsmt_nconflicts" [@@noalloc]
+  external n_decisions : t -> int = "ml_batsmt_ndecisions" [@@noalloc]
+  external n_props : t -> int = "ml_batsmt_nprops" [@@noalloc]
+
+  external n_proved_lvl_0 : t -> int = "ml_batsmt_solver_n_proved_lvl_0" [@@noalloc]
+  external proved_lvl_0 : t -> int -> Lit.t = "ml_batsmt_solver_proved_lvl_0" [@@noalloc]
 end

@@ -108,4 +108,10 @@ impl Solver {
         self.s.add_bool_clause_reuse(&mut self.cur_clause);
         self.cur_clause.clear();
     }
+
+    pub fn api_n_lits(&self) -> usize { self.s.n_lits() }
+    pub fn api_n_props(&self) -> usize { self.s.n_props() }
+    pub fn api_n_clauses(&self) -> usize { self.s.n_clauses() }
+    pub fn api_n_conflicts(&self) -> usize { self.s.n_conflicts() }
+    pub fn api_n_decisions(&self) -> usize { self.s.n_decisions() }
 }
