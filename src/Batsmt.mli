@@ -54,13 +54,12 @@ module Term : sig
   val pp : Ctx.t -> Format.formatter -> t -> unit
 
   (* TODO
-  val mk_cstor : Ctx.t -> string -> arity:int -> t
-  val mk_select: Ctx.t -> cstor:t -> int -> t
-
      - constructors
      - selectors
      - unin-functions (from arity)
    *)
+
+  val __undef : t (** do not use in any method *)
 end
 
 module Lbool : sig

@@ -145,6 +145,8 @@ module Term = struct
         Format.fprintf out "(@[select-%d-%a@ %a@])/%d" idx pp c pp sub t
     in
     pp out t
+
+  let __undef = max_int
 end
 
 type res =
