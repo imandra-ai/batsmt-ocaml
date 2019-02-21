@@ -25,6 +25,10 @@ module Term : sig
 
   val id: t -> int
 
+  val equal : t -> t -> bool
+  val hash : t -> int
+  val compare : t -> t -> int
+
   val mk_const : Ctx.t -> string -> t
   val mk_cstor : Ctx.t -> string -> t
   val mk_select: Ctx.t -> cstor:t -> int -> t -> t

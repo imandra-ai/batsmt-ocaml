@@ -38,6 +38,10 @@ end
 module Term = struct
   type t = int
 
+  let equal (a:t) b = a=b
+  let hash (a:t) = Hashtbl.hash a
+  let compare (a:t) b = Pervasives.compare a b
+
   external const_ : Ctx.t -> string -> t = "ml_batsmt_term_const" [@@noalloc]
   external app_fun_ : Ctx.t -> t -> unit = "ml_batsmt_term_app_fun" [@@noalloc]
   external app_arg_ : Ctx.t -> t -> unit = "ml_batsmt_term_app_arg" [@@noalloc]
