@@ -6,7 +6,7 @@
 (rule
   (with-stdout-to diamond5.output (run ./test_gen_diamond.exe -n 5)))
 (rule
-  (with-stdout-to diamond8.output (run ./test_gen_diamond.exe -n 8)))
+  (with-stdout-to diamond16.output (run ./test_gen_diamond.exe -n 16)))
 
 (alias
   (name runtest)
@@ -15,5 +15,5 @@
 
 (alias
   (name runtest)
-  (deps ./diamond8.expected)
-  (action (diff diamond8.output diamond8.expected)))
+  (deps ./diamond16.expected)
+  (action (diff diamond16.output diamond16.expected)))
