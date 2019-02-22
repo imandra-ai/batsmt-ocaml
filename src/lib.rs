@@ -276,6 +276,14 @@ caml!(ml_batsmt_term_bool, |ptr, b|, <res>, {
     })
 } -> res);
 
+caml!(ml_batsmt_term_not, |ptr, t|, <res>, {
+    with_ctx!(ctx, ptr, {
+        let t = ast_of_int(t.isize_val() as u32);
+        let u = ctx.api_not(t);
+        res = Value::isize(int_of_ast(u) as isize);
+    })
+} -> res);
+
 caml!(ml_batsmt_term_const, |ptr, s|, <res>, {
     with_ctx!(ctx, ptr, {
         let s: Str = s.into();

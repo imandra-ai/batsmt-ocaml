@@ -34,6 +34,7 @@ module Term : sig
   val mk_select: Ctx.t -> cstor:t -> int -> t -> t
   val mk_bool : Ctx.t -> bool -> t
   val mk_eq : Ctx.t -> t -> t -> t
+  val mk_not : Ctx.t -> t -> t
   val app_l : Ctx.t -> t -> t list -> t
   val app_a : Ctx.t -> t -> t array -> t
 
@@ -47,6 +48,7 @@ module Term : sig
         idx: int;
         sub: t;
       }
+    | Not of t
 
   val view : Ctx.t -> t -> view
 

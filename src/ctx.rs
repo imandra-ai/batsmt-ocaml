@@ -51,6 +51,7 @@ pub enum AstKind {
     Const,
     Cstor,
     Selector,
+    Not,
 }
 
 pub mod ctx {
@@ -93,6 +94,12 @@ pub mod ctx {
             }
         }
 
+        pub fn api_not(&mut self, t: AST) -> AST {
+            if t == self.b.true_ { self.b.false_ }
+            else if t == self.b.false_ { self.b.true_ }
+            else { self.m.mk_app(self.b.not_, &[t]) }
+        }
+
         pub fn api_kind(&self, t: AST) -> AstKind {
             if t == self.b.true_ || t == self.b.false_ {
                 AstKind::Bool
@@ -103,6 +110,7 @@ pub mod ctx {
             } else {
                 match self.view(&t) {
                     AstView::App{f, ..} if *f == self.b.select => AstKind::Selector,
+                    AstView::App{f, ..} if *f == self.b.not_ => AstKind::Not,
                     AstView::App{..} => AstKind::App,
                     _ => unreachable!()
                 }
@@ -214,6 +222,13 @@ pub mod ctx {
                 CCView::Opaque(t) // shortcut
             } else {
                 match self.m.view(t) {
+                    // TODO: separate between `const` (no subterms, but has node+parent list)
+                    // and `opaque-syntactic` (no subterms, no node, pure equality — use for index
+                    // and special symbols and types as in `undefined ty`)
+
+                    // TODO: special case for select? use `opaque-syntactic` for select
+                    // and its constructor and index, but not `sub`
+
                     AstView::Const(_) | AstView::Index(..) => CCView::Opaque(t),
                     AstView::App{f, args} if *f == self.b.eq => {
                         debug_assert_eq!(args.len(), 2);

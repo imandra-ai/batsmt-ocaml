@@ -49,6 +49,7 @@ module Term = struct
   external select_ : Ctx.t -> t -> int -> t -> t = "ml_batsmt_term_select" [@@noalloc]
   external set_cstor_: Ctx.t -> t -> unit = "ml_batsmt_term_set_cstor" [@@noalloc]
   external bool_ : Ctx.t -> bool -> t = "ml_batsmt_term_bool" [@@noalloc]
+  external not_ : Ctx.t -> t -> t = "ml_batsmt_term_not" [@@noalloc]
   external eq_ : Ctx.t -> t -> t -> t = "ml_batsmt_term_eq" [@@noalloc]
 
   external kind : Ctx.t -> t -> int = "ml_batsmt_term_kind" [@@noalloc]
@@ -63,6 +64,7 @@ module Term = struct
 
   let mk_bool = bool_
   let mk_eq = eq_
+  let mk_not = not_
   let[@inline] mk_const ctx s : t = const_ ctx s
 
   let mk_cstor ctx s : t =
@@ -99,6 +101,7 @@ module Term = struct
         idx: int;
         sub: t;
       }
+    | Not of t
 
   let list_init n f =
     let rec aux i n f =
@@ -126,6 +129,9 @@ module Term = struct
     | 4 -> (* select *)
       let c, idx, sub = get_select_ ctx t in
       Select {c; idx; sub}
+    | 5 -> (* not *)
+      let u = get_app_nth_arg_ ctx t 0 in
+      Not u
     | n -> failwith ("invalid term kind "^ string_of_int n)
 
   let pp ctx (out) t =
@@ -143,6 +149,7 @@ module Term = struct
         Format.fprintf out "(@[%a@ %a@])/%d" pp f (pplist pp) l t
       | Select {c; idx; sub} ->
         Format.fprintf out "(@[select-%d-%a@ %a@])/%d" idx pp c pp sub t
+      | Not u -> Format.fprintf out "(@[not@ %a@])" pp u
     in
     pp out t
 
