@@ -20,6 +20,7 @@ batsmt-hast = { git="https://github.com/AestheticIntegration/batsmt"   }
 batsmt-theory = { git="https://github.com/AestheticIntegration/batsmt" }
 batsmt-solver = { git="https://github.com/AestheticIntegration/batsmt" }
 batsmt-pretty = { git="https://github.com/AestheticIntegration/batsmt" }
+batsmt-logger = { git="https://github.com/AestheticIntegration/batsmt" }
 
 [workspace]
 

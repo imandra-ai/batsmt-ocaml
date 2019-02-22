@@ -241,3 +241,6 @@ module Solver = struct
   external n_proved_lvl_0 : t -> int = "ml_batsmt_solver_n_proved_lvl_0" [@@noalloc]
   external proved_lvl_0 : t -> int -> Lit.t = "ml_batsmt_solver_proved_lvl_0" [@@noalloc]
 end
+
+external log_ : string -> unit = "ml_batsmt_set_log_lvl"
+let set_log_lvl = log_

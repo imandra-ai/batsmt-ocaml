@@ -124,6 +124,4 @@ module Solver : sig
   val n_props : t -> int
 end
 
-(* TODO: insert [blit -> term] *)
-(* TODO: get [blit -> (term*bool) option] *)
-(* TODO: get [term -> blit option] *)
+val set_log_lvl : string -> unit

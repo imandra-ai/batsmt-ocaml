@@ -405,3 +405,9 @@ caml!(ml_batsmt_term_get_select, |ptr, t|, <res>, {
         res = tup.into();
     })
 } -> res);
+
+caml!(ml_batsmt_set_log_lvl, |s|, <res>, {
+    let s: Str = s.into();
+    batsmt_logger::init_from_str(s.as_str());
+    res = value::UNIT;
+} -> res);
