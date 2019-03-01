@@ -257,6 +257,7 @@ pub mod ctx {
                 AstView::App {f, args} if self.is_cstor(f) => {
                     CView::AppConstructor(f,args)
                 },
+                /* TODO: remove select?
                 AstView::App {f, args} if *f == self.b.select => {
                     debug_assert_eq!(3, args.len());
                     let c = &args[0];
@@ -267,6 +268,7 @@ pub mod ctx {
                     let sub = &args[2];
                     CView::Select{f: c, idx, sub}
                 },
+                */
                 _ => {
                     CView::Other(t)
                 },

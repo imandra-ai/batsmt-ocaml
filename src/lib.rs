@@ -391,6 +391,8 @@ caml!(ml_batsmt_term_get_app_nth_arg, |ptr, t, i|, <res>, {
 } -> res);
 
 caml!(ml_batsmt_term_get_select, |ptr, t|, <res>, {
+    println!("there is no select term");
+    /*
     with_ctx!(ctx, ptr, {
         let t = ast_of_int(t.isize_val() as u32);
         let mut tup = Tuple::new(3);
@@ -404,6 +406,9 @@ caml!(ml_batsmt_term_get_select, |ptr, t|, <res>, {
         };
         res = tup.into();
     })
+    */
+    ocaml::runtime::raise_not_found();
+    res = value::UNIT;
 } -> res);
 
 caml!(ml_batsmt_set_log_lvl, |s|, <res>, {
