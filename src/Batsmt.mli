@@ -68,6 +68,8 @@ module Lbool : sig
   type t = True | False | Undefined
   val equal : t -> t -> bool
   val to_string : t -> string
+  val neg : t -> t
+  val of_bool : bool -> t
   val pp : Format.formatter -> t -> unit
 end
 

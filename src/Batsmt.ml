@@ -26,6 +26,8 @@ end
 module Lbool = struct
   type t = True | False | Undefined
 
+  let neg = function Undefined -> Undefined | True -> False | False -> True
+  let of_bool b = if b then True else False
   let equal : t -> t -> bool = (=)
   let to_string = function
     | True -> "true"
