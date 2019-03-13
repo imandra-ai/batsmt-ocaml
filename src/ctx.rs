@@ -166,8 +166,11 @@ pub mod ctx {
             t
         }
 
-        pub fn api_eq(&mut self, t1: AST, t2: AST) -> AST {
+        pub fn api_eq(&mut self, mut t1: AST, mut t2: AST) -> AST {
             let f = self.b.eq;
+            if t1.idx()>t2.idx() {
+                std::mem::swap(&mut t1, &mut t2); // normalize
+            }
             self.m.mk_app(f, &[t1, t2])
         }
 
