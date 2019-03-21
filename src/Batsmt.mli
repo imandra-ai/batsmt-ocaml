@@ -5,7 +5,6 @@ module Ctx : sig
   val create : unit -> t
 end
 
-(* TODO: expose BLit, with conversions from integers, etc. *)
 module Lit : sig
   type t
 
@@ -20,6 +19,26 @@ module Lit : sig
   val hash : t -> int
 end
 
+module Ty : sig
+  type t
+
+  val id : t -> int
+
+  val equal : t -> t -> bool
+  val hash : t -> int
+  val compare : t -> t -> int
+
+  val mk_bool : Ctx.t -> t
+  val mk_str : Ctx.t -> string -> t
+
+  type view =
+    | Bool
+    | Const of string
+
+  (* TODO: val view : Ctx.t -> t -> view *)
+  (* TODO: val pp : Ctx.t -> t printer *)
+end
+
 module Term : sig
   type t
 
@@ -29,8 +48,8 @@ module Term : sig
   val hash : t -> int
   val compare : t -> t -> int
 
-  val mk_const : Ctx.t -> string -> t
-  val mk_cstor : Ctx.t -> string -> t
+  val mk_const : Ctx.t -> string -> Ty.t list -> Ty.t -> t
+  val mk_cstor : Ctx.t -> string -> Ty.t list -> Ty.t -> t
   val mk_select: Ctx.t -> cstor:t -> int -> t -> t
   val mk_bool : Ctx.t -> bool -> t
   val mk_eq : Ctx.t -> t -> t -> t
@@ -52,13 +71,15 @@ module Term : sig
 
   val view : Ctx.t -> t -> view
 
+  (* FIXME:
+  val ty : Ctx.t -> t -> Ty.t
+     *)
+
   (** Printing, based on {!view} *)
   val pp : Ctx.t -> Format.formatter -> t -> unit
 
   (* TODO
-     - constructors
      - selectors
-     - unin-functions (from arity)
    *)
 
   val __undef : t (** do not use in any method *)

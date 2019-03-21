@@ -37,14 +37,34 @@ module Lbool = struct
   let pp out l = Format.pp_print_string out (to_string l)
 end
 
-module Term = struct
+module Ty = struct
   type t = int
 
+  let id (t:t) : t = t
   let equal (a:t) b = a=b
   let hash (a:t) = Hashtbl.hash a
   let compare (a:t) b = Pervasives.compare a b
 
-  external const_ : Ctx.t -> string -> t = "ml_batsmt_term_const" [@@noalloc]
+  external bool_ : Ctx.t -> t = "ml_batsmt_ty_bool" [@@noalloc]
+  external const_ : Ctx.t -> string -> t = "ml_batsmt_ty_const" [@@noalloc]
+
+  let mk_bool = bool_
+  let mk_str = const_
+
+  type view =
+    | Bool
+    | Const of string
+end
+
+module Term = struct
+  type t = int
+
+  let id (t:t) : t = t
+  let equal (a:t) b = a=b
+  let hash (a:t) = Hashtbl.hash a
+  let compare (a:t) b = Pervasives.compare a b
+
+  external const_ : Ctx.t -> string -> Ty.t array -> Ty.t -> t = "ml_batsmt_term_const" [@@noalloc]
   external app_fun_ : Ctx.t -> t -> unit = "ml_batsmt_term_app_fun" [@@noalloc]
   external app_arg_ : Ctx.t -> t -> unit = "ml_batsmt_term_app_arg" [@@noalloc]
   external app_finalize_ : Ctx.t -> t = "ml_batsmt_term_app_finalize" [@@noalloc]
@@ -62,15 +82,13 @@ module Term = struct
   external get_app_nth_arg_ : Ctx.t -> t -> int -> t = "ml_batsmt_term_get_app_nth_arg" [@@noalloc]
   external get_select_ : Ctx.t -> t -> (t * int * t) = "ml_batsmt_term_get_select"
 
-  let id (t:t) : t = t
-
   let mk_bool = bool_
   let mk_eq = eq_
   let mk_not = not_
-  let[@inline] mk_const ctx s : t = const_ ctx s
+  let mk_const ctx s args ret : t = const_ ctx s (Array.of_list args) ret
 
-  let mk_cstor ctx s : t =
-    let c = mk_const ctx s in
+  let mk_cstor ctx s args ret : t =
+    let c = mk_const ctx s args ret in
     set_cstor_ ctx c;
     c
 

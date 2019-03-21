@@ -25,15 +25,25 @@ pub struct Builtins {
     pub select: AST, // pseudo-term
 }
 
+pub enum SymKind {
+    Ty,
+    //Op,
+    Const {
+        args: Vec<AST>, 
+        ret: AST, 
+    },
+}
+
 /// The main context.
 pub struct Ctx {
     pub m: M,
     pub lmb: LitMapBuiltins,
     pub b: Builtins,
     syms: FxHashMap<String, AST>, // caching of symbols
+    kinds: FxHashMap<AST, SymKind>,
     flags: Flags,
-    f: Option<AST>,
-    args: Vec<AST>,
+    f: Option<AST>, // for application
+    args: Vec<AST>, // for application
 }
 
 #[derive(Default,Clone)]
@@ -67,7 +77,7 @@ pub mod ctx {
             let b = Builtins::new(&mut m);
             let lmb = b.clone().into();
             Ctx {
-                m, b, lmb, f: None, args: vec!(),
+                m, b, lmb, f: None, args: vec!(), kinds: FxHashMap::default(),
                 flags: Default::default(), syms: FxHashMap::default(),
             }
         }
@@ -83,12 +93,33 @@ pub mod ctx {
 
         pub fn set_cstor(&mut self, t: &AST) { self.flags.cstor.insert(t.idx() as usize); }
 
-        pub fn api_const(&mut self, s: &str) -> AST {
+        pub fn api_ty_bool(&self) -> AST { self.b.bool_ }
+
+        pub fn api_ty_const(&mut self, s: &str) -> AST {
             match self.syms.get(s) {
                 Some(t) => *t,
                 None => {
-                    let t = self.m.mk_const(s);
+                    let t = self.m.mk_const(s, None);
                     self.syms.insert(s.to_string(), t);
+                    self.kinds.insert(t, SymKind::Ty);
+                    t
+                }
+            }
+        }
+
+        pub fn api_const(&mut self, s: &str, ty_args: &[AST], ty_ret: AST) -> AST {
+            match self.syms.get(s) {
+                Some(t) => *t,
+                None => {
+                    let t = {
+                        let ty = if ty_args.len() == 0 { Some(ty_ret) } else { None };
+                        self.m.mk_const(s, ty)
+                    };
+                    let sym_kind =
+                        SymKind::Const {
+                            args: ty_args.iter().cloned().collect(), ret: ty_ret};
+                    self.syms.insert(s.to_string(), t);
+                    self.kinds.insert(t, sym_kind);
                     t
                 }
             }
@@ -97,7 +128,7 @@ pub mod ctx {
         pub fn api_not(&mut self, t: AST) -> AST {
             if t == self.b.true_ { self.b.false_ }
             else if t == self.b.false_ { self.b.true_ }
-            else { self.m.mk_app(self.b.not_, &[t]) }
+            else { self.m.mk_app(self.b.not_, &[t], Some(self.b.bool_)) }
         }
 
         pub fn api_kind(&self, t: AST) -> AstKind {
@@ -160,18 +191,37 @@ pub mod ctx {
 
         pub fn api_app_finalize(&mut self) -> AST {
             let f = self.f.unwrap();
-            let t = self.m.mk_app(f, &self.args);
+            let ty = match &self.kinds.get(&f) {
+                Some(SymKind::Const{args, ret}) => {
+                    if args.len() != self.args.len() {
+                        panic!("wrong arity for {} (expect {} args, got {})",
+                        pp::pp1(&self.m, &f), args.len(), self.args.len())
+                    };
+                    *ret
+                },
+                _ => panic!("cannot apply {:?}", f),
+            };
+            let t = self.m.mk_app(f, &self.args, Some(ty));
             self.f = None;
             self.args.clear();
             t
         }
 
         pub fn api_eq(&mut self, mut t1: AST, mut t2: AST) -> AST {
-            let f = self.b.eq;
+            // check types
+            match (self.m.ty(&t1), self.m.ty(&t2)) {
+                (Some(ty1), Some(ty2)) => {
+                    if ty1 != ty2 {
+                        panic!("mk_eq: {} and {} have incompatible types",
+                               pp::pp1(&self.m, &t1), pp::pp1(&self.m, &t2));
+                    }
+                },
+                _ => panic!("mk_eq: terms should be typed"),
+            };
             if t1.idx()>t2.idx() {
                 std::mem::swap(&mut t1, &mut t2); // normalize
             }
-            self.m.mk_app(f, &[t1, t2])
+            self.m.mk_app(self.b.eq, &[t1, t2], Some(self.b.bool_))
         }
 
         pub fn api_set_is_cstor(&mut self, t: AST) {
@@ -179,10 +229,13 @@ pub mod ctx {
             self.set_cstor(&t)
         }
 
-        pub fn api_select(&mut self, c: AST, i: u32, sub: AST) -> AST {
+        pub fn api_select(&mut self, c: AST, _i: u32, _sub: AST) -> AST {
             debug_assert!(self.api_kind(c) == AstKind::Cstor);
+            panic!("cannot build `select`");
+            /*
             let args = [c, self.m.mk_idx(i), sub];
             self.m.mk_app(self.b.select, &args)
+            */
         }
     }
 
@@ -286,14 +339,15 @@ mod builtins {
     impl Builtins {
         /// New builtins structure.
         pub(super) fn new(m: &mut M) -> Self {
+            let bool_ = m.mk_str("Bool", None);
             Builtins {
-                bool_: m.mk_str("Bool"),
-                true_: m.mk_str("true"),
-                false_: m.mk_str("false"),
-                eq: m.mk_str("="),
-                not_: m.mk_str("not"),
-                distinct: m.mk_str("distinct"),
-                select: m.mk_str("select-"),
+                bool_,
+                true_: m.mk_str("true", Some(bool_)),
+                false_: m.mk_str("false", Some(bool_)),
+                eq: m.mk_str("=", None),
+                not_: m.mk_str("not", None),
+                distinct: m.mk_str("distinct", None),
+                select: m.mk_str("select-", None),
             }
         }
     }

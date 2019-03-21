@@ -26,12 +26,13 @@ module Solve = struct
 
   (* generate the problem and return the lit [x0 != xn] *)
   let gen_problem ({ctx; solver} as self) n : Lit.t =
-    let x0 = T.mk_const ctx "x0" in
+    let u = S.Ty.mk_str ctx "u" in
+    let x0 = T.mk_const ctx "x0" [] u in
     let prev_x = ref x0 in
     for i = 1 to n do
-      let x = T.mk_const ctx (Printf.sprintf "x%d" i) in
-      let y = T.mk_const ctx (Printf.sprintf "y%d" @@ i-1) in
-      let z = T.mk_const ctx (Printf.sprintf "z%d" @@ i-1) in
+      let x = T.mk_const ctx (Printf.sprintf "x%d" i) [] u in
+      let y = T.mk_const ctx (Printf.sprintf "y%d" @@ i-1) [] u in
+      let z = T.mk_const ctx (Printf.sprintf "z%d" @@ i-1) [] u in
       let branch = Solver.make_lit solver in
 
       logf_ "lit: %a@." Lit.pp branch;
