@@ -1,8 +1,8 @@
 
 use {
-    batsmt_core::ast_u32::AST,
+    batsmt_core::{ast, ast_u32::AST},
     batsmt_solver::{self as solver, blit::SatLit},
-    batsmt_cc::{self as cc, theories as ccth},
+    batsmt_cc::{self as cc, theories as ccth, Ctx as CCCtx, CCView},
     crate::ctx::Ctx,
 };
 
@@ -20,6 +20,7 @@ pub struct Solver {
     s: solver::Solver<Ctx, Th>,
     cur_clause: Vec<SatLit>,
     assumptions: Vec<SatLit>,
+    iter: ast::iter_dag::State<AST, ast::HashSet<AST>>,
 }
 
 #[inline]
@@ -35,7 +36,10 @@ impl Solver {
     pub fn new(c: &mut Ctx) -> Self {
         let th: Th = cc::CCTheory::new(c);
         let s = solver::Solver::new(c.builtins(), th);
-        Solver{s, cur_clause: vec![], assumptions: vec![], }
+        Solver{
+            s, cur_clause: vec![], assumptions: vec![],
+            iter: ast::iter_dag::new(),
+        }
     }
 
     /// Create a new boolean literal.
@@ -49,8 +53,19 @@ impl Solver {
     /// Create or get the boolean literal for this term.
     #[inline]
     pub fn api_make_term_lit(&mut self, ctx: &mut Ctx, t: AST) -> Lit {
-        let lit = self.s.new_term_lit(ctx, t);
+        let Solver{s, iter, ..} = self;
+        let lit = s.new_term_lit(ctx, t);
         //println!("make-term-lit for {:?}: {:?}", batsmt_pretty::pp1(ctx, &t), lit);
+        // add boolean subterms
+        iter.iter_mut(ctx, &t, |ctx, u| {
+            if ctx.is_boolean_term(u) {
+                if let CCView::Not(_) = ctx.view_as_cc_term(u) {
+                } else {
+                    // map to literal
+                    s.new_term_lit(ctx, *u);
+                }
+            }
+        });
         lit
     }
 

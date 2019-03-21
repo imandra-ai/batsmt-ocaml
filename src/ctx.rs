@@ -93,6 +93,14 @@ pub mod ctx {
 
         pub fn set_cstor(&mut self, t: &AST) { self.flags.cstor.insert(t.idx() as usize); }
 
+        /// Is `t` a term of boolean type?
+        pub fn is_boolean_term(&self, t: &AST) -> bool {
+            match self.m.ty(t) {
+		Some(ty) => ty == self.b.bool_,
+		_ => false,
+            }
+        }
+
         pub fn api_ty_bool(&self) -> AST { self.b.bool_ }
 
         pub fn api_ty_const(&mut self, s: &str) -> AST {
@@ -289,6 +297,10 @@ pub mod ctx {
                     AstView::App{f, args} if *f == self.b.eq => {
                         debug_assert_eq!(args.len(), 2);
                         CCView::Eq(&args[0], &args[1])
+                    },
+                    AstView::App{f, args} if *f == self.b.not_ => {
+                        debug_assert_eq!(args.len(), 1);
+                        CCView::Not(&args[0])
                     },
                     AstView::App{f, args} if *f == self.b.distinct => {
                         CCView::Distinct(args)
